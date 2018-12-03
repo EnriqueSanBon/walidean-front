@@ -9,11 +9,8 @@
 </template>
 
 <script>
-import persona from './components/persona.vue';
 export default {
-  components: {
-    persona
-  },
+  components: {},
   data() {
     return {}
   }

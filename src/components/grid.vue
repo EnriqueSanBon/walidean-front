@@ -14,7 +14,11 @@
     <tbody>
       <tr v-for="entry in filteredData">
         <td v-for="key in columns">
-          {{entry[key]}}
+            <img v-if="entry[key] == 'DOC'" style="width: 30%;" src="https://image.flaticon.com/icons/svg/976/976480.svg" v-on:click="navigateTo(entry.id)"/>
+            <img v-else-if="entry[key] == 'Validation'" style="width: 30%;" src="https://image.flaticon.com/icons/svg/1188/1188513.svg" v-on:click="navigateTo(entry.id)"/>
+          <div v-else>
+              {{entry[key]}}
+          </div>
         </td>
       </tr>
     </tbody>
@@ -72,6 +76,10 @@ export default {
     sortBy: function(key) {
       this.sortKey = key
       this.sortOrders[key] = this.sortOrders[key] * -1
+    },
+    navigateTo: function(id) {
+      console.log("Logo clickado");
+      this.$router.push('/document/:' + id, () => console.log('Ruta cambiada')); // Home
     }
   }
 }

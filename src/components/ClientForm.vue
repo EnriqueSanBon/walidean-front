@@ -52,6 +52,7 @@ export default {
     getClient() {
       this.$store.dispatch('setClientDataAsync', this.idUserFound).then(() => {
         //pasar al siguiente modulo
+        console.log("Cambiando de ruta");
         this.$router.push('/client', () => console.log('Ruta cambiada')); // Home
       })
     }
