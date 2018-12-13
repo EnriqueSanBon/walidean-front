@@ -9,19 +9,17 @@ module.exports = {
     filename: 'build.js'
   },
   module: {
-    rules: [
-      {
+    rules: [{
         test: /\.css$/,
         use: [
           'vue-style-loader',
           'css-loader'
         ],
-      },      {
+      }, {
         test: /\.vue$/,
         loader: 'vue-loader',
         options: {
-          loaders: {
-          }
+          loaders: {}
           // other vue-loader options go here
         }
       },
@@ -36,6 +34,9 @@ module.exports = {
         options: {
           name: '[name].[ext]?[hash]'
         }
+      }, {
+        test: /\.(eot|svg|ttf|woff|woff2)$/,
+        loader: 'url-loader'
       }
     ]
   },
@@ -53,7 +54,12 @@ module.exports = {
   performance: {
     hints: false
   },
-  devtool: '#eval-source-map'
+  devtool: '#eval-source-map',
+
+  plugins: [
+    new webpack.NormalModuleReplacementPlugin(/element-ui[\/\\]lib[\/\\]locale[\/\\]lang[\/\\]zh-CN/, 'element-ui/lib/locale/lang/en')
+  ]
+
 }
 
 if (process.env.NODE_ENV === 'production') {

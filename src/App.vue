@@ -1,9 +1,8 @@
 <template>
 <section>
-  <h1>Walidean</h1>
   <router-link to="/">Home</router-link>
   <router-link to="/clientForm">FormularioCliente</router-link>
-  <hr />
+  <router-link to="/chicfy/home">Chicfy</router-link>
   <router-view></router-view>
 </section>
 </template>

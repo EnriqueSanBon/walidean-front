@@ -1,5 +1,6 @@
 <template>
 <div>
+  <i class="el-icon-edit"></i>
   <h2>Login correcto</h2>
   <h4>Consulta Cliente</h4>
 

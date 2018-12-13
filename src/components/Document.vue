@@ -4,7 +4,7 @@
   <div>Document {{ $route.params.id }}</div>
   <h1>DATOS DEL DOCUMENTO</h1>
   <h3 v-for="data in this.currentDocument">{{data}}</h3>
-  <button @click="getDocument()">Check User</button>
+  <button @click="getDocument()">Check Document</button>
 
 </div>
 </template>
@@ -12,6 +12,7 @@
 <script>
 import { mapState } from 'vuex';
 import axios from 'axios';
+import consts from '../consts.js';
 export default {
   computed: mapState(['clientData']),
   mounted() {
@@ -30,7 +31,9 @@ export default {
           'securityCode': this.token
         }
       }
-      axios.get('http://localhost:8080/PVIService/resources/users/' + this.clientData.userId + '/documents/' + $route.params.id, config)
+      console.log("La llamada al document es");
+      console.log(consts.ipPVIService + consts.portPVIService + '/PVIService/resources/users/' + this.clientData.userId + '/documents/' + this.$route.params.id);
+      axios.get('http://localhost:8080/PVIService/resources/users/' + this.clientData.userId + '/documents/' + this.$route.params.id, config)
         .then((response) => {
           console.log("Consulta datos Documento");
           console.log(response.data);

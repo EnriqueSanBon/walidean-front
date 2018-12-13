@@ -4,9 +4,12 @@ import { routes } from './routes.js';
 import { store } from './store/store.js';
 import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
 import App from './App.vue'
 
 Vue.use(VueRouter);
+Vue.use(ElementUI);
 
 const router = new VueRouter({
   routes: routes
@@ -55,7 +58,7 @@ mock.onGet('http://localhost:8080/PVIService/resources/users/3/documents').reply
 });
 
 
-mock.onGet('http://localhost:8080/PVIService/resources/users/3/documents/1').reply(200, {
+mock.onGet('http://localhost:8080/PVIService/resources/users/3/documents/:1').reply(200, {
   data: {
     userId: "1",
     userNumberId: "123456789K",
@@ -65,4 +68,20 @@ mock.onGet('http://localhost:8080/PVIService/resources/users/3/documents/1').rep
     processDate: "2017/11/08",
     expirationDate: "2030/02/05"
   }
+});
+
+mock.onGet('http://localhost:8080/PVIService/resources/users/3/documents/:1/validations').reply(200, {
+  validations: [{
+      id: 1,
+      description: "Descripcon de la validacion 1",
+      timestamp: "20171231",
+      securityLevel: "ALTO"
+    },
+    {
+      id: 2,
+      description: "Descripcon de la validacion 2",
+      timestamp: "20171120",
+      securityLevel: "MEDIO"
+    }
+  ]
 });
