@@ -3,9 +3,9 @@
   <el-container type="flex" justify="center">
     <el-col :span="8">
       <el-main>
-        <el-upload class="upload-demo" action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" :file-list="fileList2" list-type="picture">
-          <el-button size="small" type="primary">Clic para subir archivo</el-button>
+        <el-upload class="upload-demo" action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" list-type="picture" :limit="2" :on-success="fileUpload">
           <div slot="tip" class="el-upload__tip">Solo archivos jpg/png con un tamaño menor de 500kb</div>
+          <el-button size="small" type="primary">Clic para subir archivo</el-button>
         </el-upload>
       </el-main>
     </el-col>
@@ -22,15 +22,15 @@
               </el-row>
 
               <el-row type="flex" justify="center">
-                <el-col :span="12">
-                  <el-button type="primary" @click="setValidationMethod(0)">Usar Walidean</el-button>
-                  <el-button type="danger" @click="setValidationMethod(1)">Itroducirlo a mano</el-button>
+                <el-col :span="14">
+                  <el-button type="primary" @click="setValidationMethod(walideanAllowed)" plain>Usar Walidean</el-button>
+                  <el-button type="danger" @click="setValidationMethod(walideanNotAllowed)" plain>Itroducirlo a mano</el-button>
                 </el-col>
               </el-row>
             </el-main>
           </el-row>
 
-          <el-row v-if="validationMethod==0">
+          <el-row v-if="validationMethod==walideanNotAllowed">
             <el-container>
               <el-main>
                 <el-form ref="form" :model="form" label-width="120px" label-position="top" size="mini">
@@ -109,20 +109,14 @@
                     </el-col>
                   </el-row>
 
-                  <el-row type="flex" justify="center" :gutter="20">
-                    <el-col :span="7">
-                      <el-form-item>
-                        <el-button type="primary" @click="onSubmit">Enviar</el-button>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
+
 
                 </el-form>
               </el-main>
             </el-container>
           </el-row>
 
-          <el-row v-if="validationMethod==1">
+          <el-row v-if="validationMethod==walideanAllowed">
             <el-container>
               <el-main>
                 <el-row justify="center" type="flex">
@@ -141,50 +135,13 @@
           </el-row>
 
           <el-row justify="center" type="flex">
-            <el-col :span="12" v-if="validationMethod==1">
-              <el-row justify="center" type="flex" v-if="validationMethod==1" class="legalTerms">
+            <el-col :span="12" v-if="validationMethod==walideanAllowed">
+              <el-row justify="center" type="flex" class="legalTerms">
                 <el-container>
                   <el-main>
-                    <p>
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
-                      Tus datos nunca serán compartidos sin tu permiso explicito
+                    <p v-text="legalTerms">
                     </p>
-                    <el-checkbox v-model="checked">He leido y acepto los terminos y condiciones</el-checkbox>
-
+                    <el-checkbox v-model="termsAccepted">He leido y acepto los terminos y condiciones</el-checkbox>
                   </el-main>
                 </el-container>
               </el-row>
@@ -198,6 +155,14 @@
     </el-col>
 
   </el-container>
+  <el-footer>
+    <el-row type="flex" justify="center" :gutter="20" v-if="validationMethod">
+      <el-col :span="7">
+        <el-button type="primary" @click="onSubmit" :disabled="filesUploaded.length < 2">Enviar</el-button>
+      </el-col>
+    </el-row>
+  </el-footer>
+
 
 
 </div>
@@ -212,11 +177,12 @@
 </style>
 <script>
 import axios from 'axios';
+import texts from '../texts.js';
+import consts from '../consts.js';
 export default {
   data() {
 
     return {
-      fileList2: [],
       form: {
         name: '',
         region: '',
@@ -227,8 +193,12 @@ export default {
         resource: '',
         desc: ''
       },
+      filesUploaded: [],
       validationMethod: null,
-      checked: true
+      termsAccepted: false,
+      legalTerms: texts.legalTerms,
+      walideanAllowed: consts.walideanAllowed,
+      walideanNotAllowed: consts.walideanNotAllowed
     }
   },
   methods: {
@@ -236,13 +206,21 @@ export default {
       console.log(file, fileList);
     },
     handlePreview(file) {
-      console.log(file);
+      console.log(file, fileList);
+    },
+    fileUpload(response, file, fileList) {
+      console.log("LA LISTA ES");
+      console.log(fileList);
+      this.filesUploaded = fileList;
     },
     onSubmit(form) {
       console.log(form);
     },
     setValidationMethod(method) {
       this.validationMethod = method;
+      if (method == this.walideanNotAllowed)
+        console.log("TermsAccepted a false");
+      this.termsAccepted = false;
     }
   }
 }
