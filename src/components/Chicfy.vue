@@ -158,7 +158,7 @@
   <el-footer>
     <el-row type="flex" justify="center" :gutter="20" v-if="validationMethod">
       <el-col :span="7">
-        <el-button type="primary" @click="onSubmit" :disabled="filesUploaded.length < 2">Enviar</el-button>
+        <el-button type="primary" @click="onSubmit" :disabled="disableButtonSend">Enviar</el-button>
       </el-col>
     </el-row>
   </el-footer>
@@ -221,6 +221,11 @@ export default {
       if (method == this.walideanNotAllowed)
         console.log("TermsAccepted a false");
       this.termsAccepted = false;
+    }
+  },
+  computed: {
+    disableButtonSend: function() {
+      return (this.filesUploaded.length < 2 || (this.termsAccepted == false && this.validationMethod == this.walideanAllowed))
     }
   }
 }
