@@ -37,6 +37,14 @@ module.exports = {
       }, {
         test: /\.(eot|svg|ttf|woff|woff2)$/,
         loader: 'url-loader'
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          'sass-loader'
+        ]
       }
     ]
   },

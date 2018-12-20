@@ -3,10 +3,16 @@
   <el-container type="flex" justify="center">
     <el-col :span="8">
       <el-main>
-        <el-upload class="upload-demo" action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" list-type="picture" :limit="2" :on-success="fileUpload">
-          <div slot="tip" class="el-upload__tip">Solo archivos jpg/png con un tamaño menor de 500kb</div>
-          <el-button size="small" type="primary">Clic para subir archivo</el-button>
+        <el-upload class="upload-demo" action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" list-type="picture" :limit="2" :on-success="fileUpload" :auto-upload="false" ref="upload" :on-progress="handleProgress">
+          <el-button slot="trigger" size="small" type="primary">Clic para subir archivo</el-button>
+          <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">Cargar al servidor</el-button>
         </el-upload>
+        <el-form ref="form2" :model="form" label-width="120px" label-position="top" size="mini">
+          <el-form-item label="Numero DNI">
+            <el-input v-model="form.numberId"></el-input>
+          </el-form-item>
+        </el-form>
+
       </el-main>
     </el-col>
 
@@ -14,39 +20,37 @@
       <el-container>
         <el-main>
           <el-row>
-            <el-main>
-              <el-row type="flex" justify="center">
-                <p>
-                  Tus datos han de ser validados. Podemos procesar los datos nosotros usando la plataforma Walidean o si lo prefieres puedes introducirlos a mano
-                </p>
-              </el-row>
+            <el-row type="flex" justify="center">
+              <p>
+                Tus datos han de ser validados. Podemos procesar los datos nosotros usando la plataforma Walidean o si lo prefieres puedes introducirlos a mano
+              </p>
+            </el-row>
 
-              <el-row type="flex" justify="center">
-                <el-col :span="14">
-                  <el-button type="primary" @click="setValidationMethod(walideanAllowed)" plain>Usar Walidean</el-button>
-                  <el-button type="danger" @click="setValidationMethod(walideanNotAllowed)" plain>Itroducirlo a mano</el-button>
-                </el-col>
-              </el-row>
-            </el-main>
+            <el-row type="flex" justify="center">
+              <el-col :span="14">
+                <el-button type="primary" @click="setValidationMethod(walideanAllowed)" plain>Usar Walidean</el-button>
+                <el-button type="danger" @click="setValidationMethod(walideanNotAllowed)" plain>Itroducirlo a mano</el-button>
+              </el-col>
+            </el-row>
           </el-row>
 
           <el-row v-if="validationMethod==walideanNotAllowed">
             <el-container>
               <el-main>
-                <el-form ref="form" :model="form" label-width="120px" label-position="top" size="mini">
+                <el-form ref="form" :model="form" :rules="rules" label-width="120px" label-position="top" size="mini">
                   <el-row type="flex" justify="start" :gutter="20">
                     <el-col :span="7">
-                      <el-form-item label="Apellido 1">
-                        <el-input v-model="form.name"></el-input>
+                      <el-form-item label="Apellido 1" prop="surname1">
+                        <el-input v-model="form.surname1"></el-input>
                       </el-form-item>
                     </el-col>
                     <el-col :span="7">
-                      <el-form-item label="Apellido 2">
-                        <el-input v-model="form.name"></el-input>
+                      <el-form-item label="Apellido 2" prop="surname2">
+                        <el-input v-model="form.surname2"></el-input>
                       </el-form-item>
                     </el-col>
                     <el-col :span="7">
-                      <el-form-item label="Nombre">
+                      <el-form-item label="Nombre" prop="name">
                         <el-input v-model="form.name"></el-input>
                       </el-form-item>
                     </el-col>
@@ -54,23 +58,22 @@
 
                   <el-row type="flex" justify="start" :gutter="20">
                     <el-col :span="7">
-                      <el-form-item label="Fecha de nacimiento">
-                        <el-date-picker type="date" placeholder="Pick a date" v-model="form.date1" style="width: 100%;"></el-date-picker>
+                      <el-form-item label="Fecha de nacimiento" prop="birthDate">
+                        <el-date-picker type="date" placeholder="Pick a date" v-model="form.birthDate" style="width: 100%;"></el-date-picker>
                       </el-form-item>
                     </el-col>
 
                     <el-col :span="7">
-                      <el-form-item label="Nacionalidad">
-                        <el-select v-model="form.region" placeholder="Selecciona tu nacionalidad">
-                          <el-option label="Zone one" value="shanghai"></el-option>
-                          <el-option label="Zone two" value="beijing"></el-option>
+                      <el-form-item label="Nacionalidad" prop="nationality">
+                        <el-select v-model="form.nationality" placeholder="Selecciona tu nacionalidad">
+                          <el-option v-for="item in countries" :label="item" :value="item"></el-option>
                         </el-select>
                       </el-form-item>
                     </el-col>
 
                     <el-col :span="7">
-                      <el-form-item label="Sexo">
-                        <el-radio-group v-model="form.resource">
+                      <el-form-item label="Sexo" prop="gender">
+                        <el-radio-group v-model="form.gender">
                           <el-radio label="Hombre"></el-radio>
                           <el-radio label="Mujer"></el-radio>
                         </el-radio-group>
@@ -80,36 +83,36 @@
 
                   <el-row type="flex" justify="start" :gutter="20">
                     <el-col :span="7">
-                      <el-form-item label="Numero DNI">
-                        <el-input v-model="form.name"></el-input>
+                      <el-form-item label="Numero DNI" prop="numberId">
+                        <el-input v-model="form.numberId"></el-input>
                       </el-form-item>
                     </el-col>
                     <el-col :span="7">
-                      <el-form-item label="Localidad">
-                        <el-input v-model="form.name"></el-input>
+                      <el-form-item label="Localidad" prop="locality">
+                        <el-input v-model="form.locality"></el-input>
                       </el-form-item>
                     </el-col>
                     <el-col :span="7">
-                      <el-form-item label="Provincia">
-                        <el-input v-model="form.name"></el-input>
+                      <el-form-item label="Provincia" prop="province">
+                        <el-select v-model="form.province" placeholder="Selecciona tu provincia">
+                          <el-option v-for="item in provinces" :label="item" :value="item"></el-option>
+                        </el-select>
                       </el-form-item>
                     </el-col>
                   </el-row>
 
                   <el-row type="flex" justify="start" :gutter="20">
                     <el-col :span="14">
-                      <el-form-item label="Direccion">
-                        <el-input v-model="form.name"></el-input>
+                      <el-form-item label="Direccion" prop="address">
+                        <el-input v-model="form.address"></el-input>
                       </el-form-item>
                     </el-col>
                     <el-col :span="7">
-                      <el-form-item label="Fecha de caducidad">
-                        <el-date-picker type="date" placeholder="Pick a date" v-model="form.date1" style="width: 100%;"></el-date-picker>
+                      <el-form-item label="Fecha de caducidad" prop="expirationDate">
+                        <el-date-picker type="date" placeholder="Pick a date" v-model="form.expirationDate" style="width: 100%;"></el-date-picker>
                       </el-form-item>
                     </el-col>
                   </el-row>
-
-
 
                 </el-form>
               </el-main>
@@ -124,7 +127,6 @@
                     Tus datos nunca serán compartidos sin tu permiso explicito
                   </h3>
                 </el-row>
-
                 <el-row justify="center" type="flex">
                   <h2>
                     Condiciones legales
@@ -145,8 +147,6 @@
                   </el-main>
                 </el-container>
               </el-row>
-
-
             </el-col>
           </el-row>
 
@@ -156,25 +156,29 @@
 
   </el-container>
   <el-footer>
-    <el-row type="flex" justify="center" :gutter="20" v-if="validationMethod">
-      <el-col :span="7">
-        <el-button type="primary" @click="onSubmit" :disabled="disableButtonSend">Enviar</el-button>
-      </el-col>
+    <el-row type="flex" justify="center" v-if="validationMethod">
+      <el-button type="primary" @click="onSubmit('form')" :disabled="disableButtonSend">Enviar</el-button>
+      <el-button type="primary" @click="onSubmit('form')">Enviar</el-button>
+      <el-button @click="resetForm('form')">Reset</el-button>
     </el-row>
   </el-footer>
 
 
 
 </div>
-
 </div>
 </template>
 
-<style>
+<style lang="scss">
+$font-stack: Helvetica, sans-serif;
+body {
+    font: 100% $font-stack;
+}
 .legalTerms {
-  height: 200px;
+    height: 200px;
 }
 </style>
+
 <script>
 import axios from 'axios';
 import texts from '../texts.js';
@@ -184,15 +188,56 @@ export default {
 
     return {
       form: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
+        surname1: null,
+        surname2: null,
+        name: null,
+        birthDate: null,
+        nationality: null,
+        gender: null,
+        numberId: null,
+        locality: null,
+        province: null,
+        address: null,
+        expirationDate: null
       },
+      rules: {
+        surname1: [
+          { required: true, message: 'Por favor introduce el primer apellido', trigger: 'blur' }
+        ],
+        surname2: [
+          { required: true, message: 'Por favor introduce el segundo apellido', trigger: 'blur' }
+        ],
+        name: [
+          { required: true, message: 'Por favor introduce el nombre', trigger: 'blur' }
+        ],
+        birthDate: [
+          { type: 'date', required: true, message: 'Por favor elige una fecha', trigger: 'change' }
+        ],
+        nationality: [
+          { required: true, message: 'Por favor elige un país', trigger: 'change' }
+        ],
+        gender: [
+          { required: true, message: 'Por favor elige un género', trigger: 'change' }
+        ],
+        numberId: [
+          { required: true, message: 'Por favor introduce el número de identificación', trigger: 'blur' }
+        ],
+        locality: [
+          { required: true, message: 'Por favor introduce una localidad', trigger: 'blur' }
+          //{ min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' }
+        ],
+        province: [
+          { required: true, message: 'Por favor elige una provincia', trigger: 'change' }
+        ],
+        address: [
+          { required: true, message: 'Por favor introduce una dirección', trigger: 'blur' }
+        ],
+        expirationDate: [
+          { type: 'date', required: true, message: 'Por favor elige una fecha', trigger: 'change' }
+        ]
+      },
+      countries: consts.countries,
+      provinces: consts.provinces,
       filesUploaded: [],
       validationMethod: null,
       termsAccepted: false,
@@ -202,30 +247,51 @@ export default {
     }
   },
   methods: {
+
+    resetForm(formName) {
+      console.log("Lipiar formulario");
+      this.$refs[formName].resetFields();
+    },
     handleRemove(file, fileList) {
       console.log(file, fileList);
     },
-    handlePreview(file) {
+    handleProgress(file, fileList) {
+      console.log("PROGRESS");
       console.log(file, fileList);
     },
+    handlePreview(file) {
+      console.log("Preview");
+      console.log(file);
+    },
     fileUpload(response, file, fileList) {
-      console.log("LA LISTA ES");
+      console.log("LA LISTA DE SUBIDOS ES");
       console.log(fileList);
       this.filesUploaded = fileList;
     },
     onSubmit(form) {
-      console.log(form);
+      this.$refs[form].validate((valid) => {
+        if (valid) {
+          alert('submit!');
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
     },
     setValidationMethod(method) {
       this.validationMethod = method;
       if (method == this.walideanNotAllowed)
         console.log("TermsAccepted a false");
       this.termsAccepted = false;
+    },
+    submitUpload() {
+      console.log("Se va a subir archivo");
+      this.$refs.upload.submit();
     }
   },
   computed: {
     disableButtonSend: function() {
-      return (this.filesUploaded.length < 2 || (this.termsAccepted == false && this.validationMethod == this.walideanAllowed))
+      return (this.filesUploaded.length < 2 || (this.termsAccepted == false && this.validationMethod == this.walideanAllowed) || this.form.numberId.length == 0)
     }
   }
 }
