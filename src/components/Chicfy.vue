@@ -3,16 +3,21 @@
   <el-container type="flex" justify="center">
     <el-col :span="8">
       <el-main>
+
         <el-upload class="upload-demo" action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" list-type="picture" :limit="2" :on-success="fileUpload" :auto-upload="false" ref="upload" :on-progress="handleProgress">
           <el-button slot="trigger" size="small" type="primary">Clic para subir archivo</el-button>
           <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">Cargar al servidor</el-button>
         </el-upload>
-        <el-form ref="form2" :model="form" label-width="120px" label-position="top" size="mini">
-          <el-form-item label="Numero DNI">
+
+
+        <el-form ref="form2" :model="form" :rules="rules" label-width="120px" label-position="top" size="mini">
+          <el-form-item label="Numero DNI" prop="numberId">
             <el-input v-model="form.numberId"></el-input>
           </el-form-item>
+          <el-form-item label="Email" prop="email">
+            <el-input v-model="form.email"></el-input>
+          </el-form-item>
         </el-form>
-
       </el-main>
     </el-col>
 
@@ -22,7 +27,7 @@
           <el-row>
             <el-row type="flex" justify="center">
               <p>
-                Tus datos han de ser validados. Podemos procesar los datos nosotros usando la plataforma Walidean o si lo prefieres puedes introducirlos a mano
+                Tus datos han de ser validados. Podemos procesar los datos nosotros usando la plataforma Walidean o si lo prefieres puedes introducirlos a mano. wasaaaaaaaaaaaaaaaaaaaa
               </p>
             </el-row>
 
@@ -102,7 +107,7 @@
                   </el-row>
 
                   <el-row type="flex" justify="start" :gutter="20">
-                    <el-col :span="14">
+                    <el-col :span="7">
                       <el-form-item label="Direccion" prop="address">
                         <el-input v-model="form.address"></el-input>
                       </el-form-item>
@@ -112,8 +117,12 @@
                         <el-date-picker type="date" placeholder="Pick a date" v-model="form.expirationDate" style="width: 100%;"></el-date-picker>
                       </el-form-item>
                     </el-col>
+                    <el-col :span="7">
+                      <el-form-item label="Email" prop="email">
+                        <el-input v-model="form.email"></el-input>
+                      </el-form-item>
+                    </el-col>
                   </el-row>
-
                 </el-form>
               </el-main>
             </el-container>
@@ -157,8 +166,8 @@
   </el-container>
   <el-footer>
     <el-row type="flex" justify="center" v-if="validationMethod">
-      <el-button type="primary" @click="onSubmit('form')" :disabled="disableButtonSend">Enviar</el-button>
-      <el-button type="primary" @click="onSubmit('form')">Enviar</el-button>
+      <el-button type="primary" @click="onSubmit('form2')" :disabled="disableButtonSend">Enviar</el-button>
+      <el-button type="primary" @click="onSubmit('form2')">Enviar</el-button>
       <el-button @click="resetForm('form')">Reset</el-button>
     </el-row>
   </el-footer>
@@ -183,9 +192,38 @@ body {
 import axios from 'axios';
 import texts from '../texts.js';
 import consts from '../consts.js';
+import firebase from 'firebase'
 export default {
   data() {
+    var checkDNI = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('Por favor introduce un DNI'));
+      }
+      setTimeout(() => {
+        if (value.length < 3 || value.length > 9) {
+          callback(new Error('Numero de caracteres invalido'));
+          console.log("Numero de caracteres invalido");
+        }
+        var letter = value.slice(-1);
+        var number = value.slice(0, -1);
+        console.log("Valor de la letra " + letter);
+        console.log("Valor del DNI " + number);
+        if (isNaN(number)) {
+          callback(new Error('Introduce el número de DNI y la letra'));
+        } else {
+          if (!isNaN(letter)) {
+            callback(new Error('Falta la letra final del DNI'));
+          } else {
+            if (this.controlDigits[parseInt(number) % 23] != letter) {
+              callback(new Error('DNI incorrecto'));
+            } else {
+              callback();
+            }
+          }
 
+        }
+      }, 1000);
+    };
     return {
       form: {
         surname1: null,
@@ -198,7 +236,8 @@ export default {
         locality: null,
         province: null,
         address: null,
-        expirationDate: null
+        expirationDate: null,
+        email: null
       },
       rules: {
         surname1: [
@@ -219,9 +258,10 @@ export default {
         gender: [
           { required: true, message: 'Por favor elige un género', trigger: 'change' }
         ],
-        numberId: [
-          { required: true, message: 'Por favor introduce el número de identificación', trigger: 'blur' }
-        ],
+        numberId: [{
+          validator: checkDNI,
+          trigger: 'change'
+        }],
         locality: [
           { required: true, message: 'Por favor introduce una localidad', trigger: 'blur' }
           //{ min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' }
@@ -234,6 +274,9 @@ export default {
         ],
         expirationDate: [
           { type: 'date', required: true, message: 'Por favor elige una fecha', trigger: 'change' }
+        ],
+        email: [
+          { type: 'email', required: true, message: 'Por favor introduce un email valido', trigger: 'change' }
         ]
       },
       countries: consts.countries,
@@ -243,7 +286,11 @@ export default {
       termsAccepted: false,
       legalTerms: texts.legalTerms,
       walideanAllowed: consts.walideanAllowed,
-      walideanNotAllowed: consts.walideanNotAllowed
+      walideanNotAllowed: consts.walideanNotAllowed,
+      db: firebase.database(),
+      controlDigits: ["T", "R", "W", "A", "G", "M", "Y", "F", "P", "D", "X", "B", "N", "J", "Z", "S", "Q", "V", "H", "L", "C", "K", "E"]
+
+
     }
   },
   methods: {
@@ -269,6 +316,13 @@ export default {
       this.filesUploaded = fileList;
     },
     onSubmit(form) {
+      this.db.ref('/users')
+        .push({
+          numberId: this.form.numberId,
+          email: this.form.email,
+          validated: true,
+        })
+      console.log("Usuario añadido");
       this.$refs[form].validate((valid) => {
         if (valid) {
           alert('submit!');
@@ -286,7 +340,14 @@ export default {
     },
     submitUpload() {
       console.log("Se va a subir archivo");
-      this.$refs.upload.submit();
+      console.log(this.$refs.upload.uploadFiles);
+      this.$refs.upload.uploadFiles.forEach(function(element) {
+        console.log("Variable del tipo:");
+        console.log(typeof(element));
+        console.log(element);
+      });
+
+      //this.$refs.upload.submit();
     }
   },
   computed: {

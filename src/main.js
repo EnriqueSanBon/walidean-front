@@ -7,6 +7,7 @@ import axios from 'axios';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import App from './App.vue'
+import firebase from 'firebase'
 
 Vue.use(VueRouter);
 Vue.use(ElementUI);
@@ -22,14 +23,25 @@ new Vue({
   render: h => h(App)
 })
 
+// Initialize Firebase
+var config = {
+  apiKey: "AIzaSyBVwrpVjSABKmSQ-5H_QFXiBPzKfcTAOkA",
+  authDomain: "walidean.firebaseapp.com",
+  databaseURL: "https://walidean.firebaseio.com",
+  projectId: "walidean",
+  storageBucket: "walidean.appspot.com",
+  messagingSenderId: "832613647991"
+};
+firebase.initializeApp(config);
+
 var mock = new MockAdapter(axios);
 mock.onGet('http://localhost:8080/PVIService/resources/users/3').reply(200, {
   user: {
-    name: "Elena",
+    name: "Pichu",
     phone: "enriquesanchezbonet@gmail.com",
-    surname: "Jurdao",
+    surname: "Calzada",
     userId: "3",
-    userNumberId: '70081568Q'
+    userNumberId: '1234562A'
   }
 });
 
