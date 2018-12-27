@@ -27,7 +27,7 @@
           <el-row>
             <el-row type="flex" justify="center">
               <p>
-                Tus datos han de ser validados. Podemos procesar los datos nosotros usando la plataforma Walidean o si lo prefieres puedes introducirlos a mano. wasaaaaaaaaaaaaaaaaaaaa
+                Tus datos han de ser validados. Podemos procesar los datos nosotros usando la plataforma Walidean o si lo prefieres puedes introducirlos a mano. wawawawawwaawwasaaaaaaaaaaaaaaaaaaaa
               </p>
             </el-row>
 
@@ -165,9 +165,10 @@
 
   </el-container>
   <el-footer>
-    <el-row type="flex" justify="center" v-if="validationMethod">
+    <el-row type="flex" justify="center">
       <el-button type="primary" @click="onSubmit('form2')" :disabled="disableButtonSend">Enviar</el-button>
-      <el-button type="primary" @click="onSubmit('form2')">Enviar</el-button>
+      <el-button type="primary" v-if="validationMethod==walideanNotAllowed" @click="onSubmit('form')">Enviar</el-button>
+      <el-button type="primary" v-if="  validationMethod==walideanAllowed" @click="onSubmit('form2')">Enviar 2</el-button>
       <el-button @click="resetForm('form')">Reset</el-button>
     </el-row>
   </el-footer>
@@ -316,16 +317,43 @@ export default {
       this.filesUploaded = fileList;
     },
     onSubmit(form) {
-      this.db.ref('/users')
-        .push({
-          numberId: this.form.numberId,
-          email: this.form.email,
-          validated: true,
-        })
-      console.log("Usuario añadido");
       this.$refs[form].validate((valid) => {
         if (valid) {
-          alert('submit!');
+          var ref = this.db.ref("/users");
+          var db = this.db;
+          form = this.form;
+          /*
+                    ref.orderByChild("email").equalTo(this.form.email).once("value", function(snapshot) {
+                      console.log("Email encontrado");
+                      console.log(snapshot.val());
+                      return
+                    });
+          */
+          ref.orderByChild("numberId").equalTo(this.form.numberId).once("value")
+            .then(
+              function(snapshot) {
+                console.log("Resultado busqueda DNI");
+                console.log(snapshot.val());
+                if (snapshot.val() == null) {
+                  ref.orderByChild("email").equalTo(form.email).once("value")
+                    .then(function(snapshot) {
+                      if (snapshot.val() == null) {
+                        console.log("Usuario No Encontrado");
+                        db.ref('/users')
+                          .push({
+                            numberId: form.numberId,
+                            email: form.email,
+                            validated: true,
+                          })
+                        console.log("Usuario añadido");
+                      }
+                      console.log("Email ya existe");
+                    });
+
+                } else {
+                  console.log("DNI ya existente");
+                }
+              });
         } else {
           console.log('error submit!!');
           return false;
