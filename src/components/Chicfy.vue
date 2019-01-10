@@ -277,44 +277,70 @@ export default {
         email: null
       },
       rules: {
-        surname1: [
-          { required: true, message: 'Por favor introduce el primer apellido', trigger: 'blur' }
-        ],
-        surname2: [
-          { required: true, message: 'Por favor introduce el segundo apellido', trigger: 'blur' }
-        ],
-        name: [
-          { required: true, message: 'Por favor introduce el nombre', trigger: 'blur' }
-        ],
-        birthDate: [
-          { type: 'date', required: true, message: 'Por favor elige una fecha', trigger: 'change' }
-        ],
-        nationality: [
-          { required: true, message: 'Por favor elige un país', trigger: 'change' }
-        ],
-        gender: [
-          { required: true, message: 'Por favor elige un género', trigger: 'change' }
-        ],
+        surname1: [{
+          required: true,
+          message: 'Por favor introduce el primer apellido',
+          trigger: 'blur'
+        }],
+        surname2: [{
+          required: true,
+          message: 'Por favor introduce el segundo apellido',
+          trigger: 'blur'
+        }],
+        name: [{
+          required: true,
+          message: 'Por favor introduce el nombre',
+          trigger: 'blur'
+        }],
+        birthDate: [{
+          type: 'date',
+          required: true,
+          message: 'Por favor elige una fecha',
+          trigger: 'change'
+        }],
+        nationality: [{
+          required: true,
+          message: 'Por favor elige un país',
+          trigger: 'change'
+        }],
+        gender: [{
+          required: true,
+          message: 'Por favor elige un género',
+          trigger: 'change'
+        }],
         numberId: [{
           validator: checkDNI,
           trigger: 'change'
         }],
-        locality: [
-          { required: true, message: 'Por favor introduce una localidad', trigger: 'blur' }
+        locality: [{
+            required: true,
+            message: 'Por favor introduce una localidad',
+            trigger: 'blur'
+          }
           //{ min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' }
         ],
-        province: [
-          { required: true, message: 'Por favor elige una provincia', trigger: 'change' }
-        ],
-        address: [
-          { required: true, message: 'Por favor introduce una dirección', trigger: 'blur' }
-        ],
-        expirationDate: [
-          { type: 'date', required: true, message: 'Por favor elige una fecha', trigger: 'change' }
-        ],
-        email: [
-          { type: 'email', required: true, message: 'Por favor introduce un email valido', trigger: 'change' }
-        ]
+        province: [{
+          required: true,
+          message: 'Por favor elige una provincia',
+          trigger: 'change'
+        }],
+        address: [{
+          required: true,
+          message: 'Por favor introduce una dirección',
+          trigger: 'blur'
+        }],
+        expirationDate: [{
+          type: 'date',
+          required: true,
+          message: 'Por favor elige una fecha',
+          trigger: 'change'
+        }],
+        email: [{
+          type: 'email',
+          required: true,
+          message: 'Por favor introduce un email valido',
+          trigger: 'change'
+        }]
       },
       countries: consts.countries,
       provinces: consts.provinces,
@@ -386,10 +412,40 @@ export default {
 
                 } else {
                   console.log("DNI ya existente");
-                  context.$message({
-                    type: 'error',
-                    message: 'El DNI introducido ya existe'
-                  });
+                  ref.orderByChild("email").equalTo(form.email).once("value") //buscamos email
+                    .then(function(snapshot) {
+                      if (snapshot.val() == null) { //no existe email
+                        context.$message({
+                          type: 'error',
+                          message: 'DNI no concuerda con Email introducido'
+                        });
+                      } else { //existe email
+                        console.log("Email y DNI existentes, comprobando intentos y estado");
+                        snapshot.forEach(function(userSnapshot) {
+                          console.log(userSnapshot.val().intents);
+                          console.log(userSnapshot.val().validated);
+                          if (userSnapshot.val().validated == true) {
+                            context.$message({
+                              type: 'success',
+                              message: 'Usuario ya validado'
+                            });
+                          } else {
+                            if (userSnapshot.val().intents >= 3) {
+                              context.$message({
+                                type: 'error',
+                                message: 'Numero de intentos excedido, tendras que esperar unos dias a que lo validemos a mano'
+                              });
+                            } else {
+                              //llamar a iddiligence
+                              console.log("Llamar a iddiligence");
+                            }
+                          }
+                        });
+
+                      }
+                    });
+
+
                 }
               });
         } else {
@@ -485,6 +541,7 @@ export default {
   },
   mounted() {
     this.isMounted = true;
+    //Iddiligence llamar a login
   }
 }
 </script>
