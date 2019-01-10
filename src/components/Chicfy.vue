@@ -3,6 +3,29 @@
   <el-container type="flex" justify="center">
     <el-col :span="8">
       <el-main>
+        <span class="instructions">Instrucciones</span>
+        <el-row type="flex" justify="center" :gutter="20">
+          <el-col :span="12">
+            <el-popover placement="top-start" title="Calidad" width="200" trigger="hover" content="La imagen debe verse clara y nitida">
+              <img slot="reference" src="../assets/requisitosFoto/borrosa.png">
+            </el-popover>
+          </el-col>
+          <el-col :span="12">
+            <el-popover placement="top-start" title="Información" width="200" trigger="hover" content="Deben leerse correctamente todos los campos, no debe haber reflejos ni campos tachados u ocultos">
+              <img slot="reference" src="../assets/requisitosFoto/Informacion.png">
+            </el-popover>
+          </el-col>
+          <el-col :span="12">
+            <el-popover placement="top-start" title="Fondo" width="200" trigger="hover" content="La foto debe hacerse sobre un fondo oscuro">
+              <img slot="reference" src="../assets/requisitosFoto/fondo.png">
+            </el-popover>
+          </el-col>
+          <el-col :span="12">
+            <el-popover placement="top-start" title="Marcos" width="200" trigger="hover" content="Asegurate de que se ven las 4 esquinas del documento">
+              <img slot="reference" src="../assets/requisitosFoto/marcos.png">
+            </el-popover>
+          </el-col>
+        </el-row>
 
         <el-upload class="upload-demo" action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" list-type="picture" :limit="2" :on-success="fileUpload" :auto-upload="false" ref="upload" :on-progress="handleProgress">
           <el-button slot="trigger" size="small" type="primary">Clic para subir archivo</el-button>
@@ -25,17 +48,19 @@
       <el-container>
         <el-main>
           <el-row>
+
+            <el-row type="flex" justify="center">
+              <span class="title">WALIDEAN</span>
+            </el-row>
             <el-row type="flex" justify="center">
               <p>
-                Tus datos han de ser validados. Podemos procesar los datos nosotros usando la plataforma Walidean o si lo prefieres puedes introducirlos a mano. wawawawawwaawwasaaaaaaaaaaaaaaaaaaaa
+                Tus datos han de ser validados. Podemos procesar los datos nosotros usando la plataforma Walidean o si lo prefieres puedes introducirlos a mano. ¿Que método prefieres utilizar?
               </p>
             </el-row>
 
             <el-row type="flex" justify="center">
-              <el-col :span="14">
-                <el-button type="primary" @click="setValidationMethod(walideanAllowed)" plain>Usar Walidean</el-button>
-                <el-button type="danger" @click="setValidationMethod(walideanNotAllowed)" plain>Itroducirlo a mano</el-button>
-              </el-col>
+              <el-button type="primary" @click="setValidationMethod(walideanAllowed)" plain>Usar Walidean</el-button>
+              <el-button type="danger" @click="setValidationMethod(walideanNotAllowed)" plain>Itroducirlo a mano</el-button>
             </el-row>
           </el-row>
 
@@ -186,6 +211,16 @@ body {
 }
 .legalTerms {
     height: 200px;
+}
+.title {
+    font-size: 80px;
+}
+.instructions {
+    font-size: 30px;
+}
+img {
+    max-width: 100%;
+    max-height: 100%;
 }
 </style>
 
@@ -432,6 +467,7 @@ export default {
             console.log('Uploaded a blob or file!');
           });
         });
+        this.$router.push('/chicfy/done', () => console.log('Ruta cambiada')); // Home
       }).catch(() => {
         this.$message({
           type: 'info',
