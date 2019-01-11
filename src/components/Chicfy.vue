@@ -400,7 +400,8 @@ export default {
                   ref.orderByChild("email").equalTo(form.email).once("value")
                     .then(function(snapshot) {
                       if (snapshot.val() == null) {
-                        context.openSendDataAlert();
+                        console.log("Abriendo dialogo, usuario no existente");
+                        context.openSendDataAlert(false, null, form);
                       } else {
                         console.log("Email ya existe");
                         context.$message({
@@ -422,6 +423,7 @@ export default {
                       } else { //existe email
                         console.log("Email y DNI existentes, comprobando intentos y estado");
                         snapshot.forEach(function(userSnapshot) {
+                          console.log(userSnapshot.key);
                           console.log(userSnapshot.val().intents);
                           console.log(userSnapshot.val().validated);
                           if (userSnapshot.val().validated == true) {
@@ -437,15 +439,13 @@ export default {
                               });
                             } else {
                               //llamar a iddiligence
-                              console.log("Llamar a iddiligence");
+                              console.log("Abriendo dialogo, usuario ya existente, sin validar y con intentos validos");
+                              context.openSendDataAlert(true, userSnapshot, form);
                             }
                           }
                         });
-
                       }
                     });
-
-
                 }
               });
         } else {
@@ -464,72 +464,67 @@ export default {
         console.log("TermsAccepted a false");
       this.termsAccepted = false;
     },
-    submitUpload() {
-      console.log("Se va a subir archivo");
-      console.log(this.$refs.upload.uploadFiles);
-      var form = this.form
-      this.$refs.upload.uploadFiles.forEach(function(element, index) {
-        console.log("Variable del tipo:");
-        console.log(typeof(element));
-        console.log(element);
-        console.log(typeof(element.raw));
-        console.log(element.raw);
-        var file = element.raw // use the Blob or File API
-        var storageRef = firebase.storage().ref();
-        var mountainsRef = storageRef.child('users/' + form.numberId + '/' + index + '.jpg');
-        mountainsRef.put(file).then(function(snapshot) {
-          console.log('Uploaded a blob or file!');
-        });
-      });
-
-      //this.$refs.upload.submit();
-    },
-    openSendDataAlert(form) {
+    openSendDataAlert(userExists, userSnapshot, form) {
       var ref = this.db.ref("/users");
       var db = this.db;
       form = this.form;
       var uploadedFiles = this.$refs.upload.uploadFiles
+      console.log("Abrir dialogo");
       this.$confirm('Vas a subir tus datos, seguro que son correctos?', 'Warning', {
         confirmButtonText: 'SI!',
         cancelButtonText: 'Cancelar',
         type: 'warning'
       }).then(() => {
-        this.$message({
-          type: 'success',
-          message: 'Autenticación realizada con exito!'
-        });
-        console.log("NEPE");
-        console.log("Usuario No Encontrado");
-        db.ref('/users')
-          .push({
-            numberId: form.numberId,
-            email: form.email,
-            validated: true,
-          })
-        console.log("Usuario añadido");
-
-        console.log("Se va a subir archivo");
-        console.log(uploadedFiles);
-        uploadedFiles.forEach(function(element, index) {
-          console.log("Variable del tipo:");
-          console.log(typeof(element));
-          console.log(element);
-          console.log(typeof(element.raw));
-          console.log(element.raw);
-          var file = element.raw // use the Blob or File API
-          var storageRef = firebase.storage().ref();
-          var mountainsRef = storageRef.child('users/' + form.numberId + '/' + index + '.jpg');
-          mountainsRef.put(file).then(function(snapshot) {
-            console.log('Uploaded a blob or file!');
+        if (true) {
+          console.log("Iddiligence responde OK");
+          if (userExists == false) {
+            db.ref('/users')
+              .push({
+                numberId: form.numberId,
+                email: form.email,
+                validated: false,
+                intents: 1
+              })
+            var intents = 1
+            console.log("Usuario añadido");
+          } else {
+            db.ref('/users/' + userSnapshot.key)
+              .update({
+                intents: userSnapshot.val().intents + 1
+              })
+            var intents = userSnapshot.val().intents
+          }
+          console.log("Se va a subir archivo");
+          console.log(uploadedFiles);
+          uploadedFiles.forEach(function(element, index) {
+            console.log("Variable del tipo:");
+            console.log(typeof(element));
+            console.log(element);
+            console.log(typeof(element.raw));
+            console.log(element.raw);
+            var file = element.raw // use the Blob or File API
+            var storageRef = firebase.storage().ref();
+            var mountainsRef = storageRef.child('users/' + form.numberId + '/' + intents + '/' + (index == 0 ? 'frontal' : 'trasera') + '.jpg');
+            mountainsRef.put(file).then(function(snapshot) {
+              console.log('Uploaded a blob or file!');
+            });
           });
-        });
-        this.$router.push('/chicfy/done', () => console.log('Ruta cambiada')); // Home
+          this.$message({
+            type: 'success',
+            message: 'Autenticación realizada con exito!'
+          });
+          this.$router.push('/chicfy/done', () => console.log('Ruta cambiada')); // Home
+        }
       }).catch(() => {
         this.$message({
           type: 'info',
           message: 'Identificación cancelada'
         });
       });
+    },
+    callIddiligence() {
+      console.log("Iddiligence responde OK");
+      return true;
     }
   },
   computed: {
