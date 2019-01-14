@@ -469,62 +469,68 @@ export default {
       var db = this.db;
       form = this.form;
       var uploadedFiles = this.$refs.upload.uploadFiles
+      var context = this;
       console.log("Abrir dialogo");
       this.$confirm('Vas a subir tus datos, seguro que son correctos?', 'Warning', {
         confirmButtonText: 'SI!',
         cancelButtonText: 'Cancelar',
         type: 'warning'
       }).then(() => {
-        if (true) {
-          console.log("Iddiligence responde OK");
-          if (userExists == false) {
-            db.ref('/users')
-              .push({
-                numberId: form.numberId,
-                email: form.email,
-                validated: false,
-                intents: 1
-              })
-            var intents = 1
-            console.log("Usuario añadido");
-          } else {
-            db.ref('/users/' + userSnapshot.key)
-              .update({
-                intents: userSnapshot.val().intents + 1
-              })
-            var intents = userSnapshot.val().intents
-          }
-          console.log("Se va a subir archivo");
-          console.log(uploadedFiles);
-          uploadedFiles.forEach(function(element, index) {
-            console.log("Variable del tipo:");
-            console.log(typeof(element));
-            console.log(element);
-            console.log(typeof(element.raw));
-            console.log(element.raw);
-            var file = element.raw // use the Blob or File API
-            var storageRef = firebase.storage().ref();
-            var mountainsRef = storageRef.child('users/' + form.numberId + '/' + intents + '/' + (index == 0 ? 'frontal' : 'trasera') + '.jpg');
-            mountainsRef.put(file).then(function(snapshot) {
-              console.log('Uploaded a blob or file!');
+        var iddiligenceResponse;
+        context.callIddiligence().then(function(response) {
+          console.log("Iddiligence ha respondido " + response);
+          if (true) {
+            console.log("Iddiligence responde OK");
+            if (userExists == false) {
+              db.ref('/users')
+                .push({
+                  numberId: form.numberId,
+                  email: form.email,
+                  validated: (response == 'OK' ? true : false),
+                  intents: 1
+                })
+              var intents = 1
+              console.log("Usuario añadido");
+            } else {
+              db.ref('/users/' + userSnapshot.key)
+                .update({
+                  intents: userSnapshot.val().intents + 1,
+                  validated: (response == 'OK' ? true : false)
+                })
+              var intents = userSnapshot.val().intents
+            }
+            console.log("Se va a subir archivo");
+            console.log(uploadedFiles);
+            uploadedFiles.forEach(function(element, index) {
+              console.log("Variable del tipo:");
+              console.log(typeof(element));
+              console.log(element);
+              console.log(typeof(element.raw));
+              console.log(element.raw);
+              var file = element.raw // use the Blob or File API
+              var storageRef = firebase.storage().ref();
+              var mountainsRef = storageRef.child('users/' + form.numberId + '/' + intents + '/' + (index == 0 ? 'frontal' : 'trasera') + '.jpg');
+              mountainsRef.put(file).then(function(snapshot) {
+                console.log('Uploaded a blob or file!');
+              });
             });
-          });
-          this.$message({
-            type: 'success',
-            message: 'Autenticación realizada con exito!'
-          });
-          this.$router.push('/chicfy/done', () => console.log('Ruta cambiada')); // Home
-        }
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: 'Identificación cancelada'
-        });
-      });
+            context.$message({
+              type: 'success',
+              message: 'Autenticación realizada con exito!'
+            });
+            context.$router.push('/chicfy/done', () => console.log('Ruta cambiada')); // Home
+          }
+        })
+      })
     },
     callIddiligence() {
-      console.log("Iddiligence responde OK");
-      return true;
+      const promise = new Promise(function(resolve, reject) {
+        setTimeout(function() {
+          console.log("Iddiligence responde OK tras 5 segundos");
+          resolve('OK')
+        }, 5000);
+      })
+      return promise;
     }
   },
   computed: {
