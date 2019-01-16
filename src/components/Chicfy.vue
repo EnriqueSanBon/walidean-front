@@ -7,22 +7,22 @@
         <el-row type="flex" justify="center" :gutter="20">
           <el-col :span="12">
             <el-popover placement="top-start" title="Calidad" width="200" trigger="hover" content="La imagen debe verse clara y nitida">
-              <img slot="reference" src="../assets/requisitosFoto/borrosa.png">
+              <img slot="reference" src="https://www.gsmliberar.net/dni/borrosa.png">
             </el-popover>
           </el-col>
           <el-col :span="12">
             <el-popover placement="top-start" title="Información" width="200" trigger="hover" content="Deben leerse correctamente todos los campos, no debe haber reflejos ni campos tachados u ocultos">
-              <img slot="reference" src="../assets/requisitosFoto/Informacion.png">
+              <img slot="reference" src="https://www.gsmliberar.net/dni/informacion.png">
             </el-popover>
           </el-col>
           <el-col :span="12">
             <el-popover placement="top-start" title="Fondo" width="200" trigger="hover" content="La foto debe hacerse sobre un fondo oscuro">
-              <img slot="reference" src="../assets/requisitosFoto/fondo.png">
+              <img slot="reference" src="https://www.gsmliberar.net/dni/fondo.png">
             </el-popover>
           </el-col>
           <el-col :span="12">
             <el-popover placement="top-start" title="Marcos" width="200" trigger="hover" content="Asegurate de que se ven las 4 esquinas del documento">
-              <img slot="reference" src="../assets/requisitosFoto/marcos.png">
+              <img slot="reference" src="https://www.gsmliberar.net/dni/marcos.png">
             </el-popover>
           </el-col>
         </el-row>
@@ -35,7 +35,7 @@
 
         <el-form ref="form2" :model="form" :rules="rules" label-width="120px" label-position="top" size="mini">
           <el-form-item label="Numero DNI" prop="numberId">
-            <el-input v-model="form.numberId"></el-input>
+            <el-input v-model="form.numberId" :change="this.form.numberId = this.form.numberId.toUpperCase()"></el-input>
           </el-form-item>
           <el-form-item label="Email" prop="email">
             <el-input v-model="form.email"></el-input>
@@ -60,7 +60,7 @@
 
             <el-row type="flex" justify="center">
               <el-button type="primary" @click="setValidationMethod(walideanAllowed)" plain>Usar Walidean</el-button>
-              <el-button type="danger" @click="setValidationMethod(walideanNotAllowed)" plain>Itroducirlo a mano</el-button>
+              <el-button type="danger" @click="setValidationMethod(walideanNotAllowed)" plain>Introducirlo a mano</el-button>
             </el-row>
           </el-row>
 
@@ -89,7 +89,7 @@
                   <el-row type="flex" justify="start" :gutter="20">
                     <el-col :span="7">
                       <el-form-item label="Fecha de nacimiento" prop="birthDate">
-                        <el-date-picker type="date" placeholder="Pick a date" v-model="form.birthDate" style="width: 100%;"></el-date-picker>
+                        <el-date-picker type="date" placeholder="Selecciona una fecha" v-model="form.birthDate" style="width: 100%;"></el-date-picker>
                       </el-form-item>
                     </el-col>
 
@@ -139,7 +139,7 @@
                     </el-col>
                     <el-col :span="7">
                       <el-form-item label="Fecha de caducidad" prop="expirationDate">
-                        <el-date-picker type="date" placeholder="Pick a date" v-model="form.expirationDate" style="width: 100%;"></el-date-picker>
+                        <el-date-picker type="date" placeholder="Selecciona una fecha" v-model="form.expirationDate" style="width: 100%;"></el-date-picker>
                       </el-form-item>
                     </el-col>
                     <el-col :span="7">
@@ -269,7 +269,7 @@ export default {
         birthDate: null,
         nationality: null,
         gender: null,
-        numberId: null,
+        numberId: '',
         locality: null,
         province: null,
         address: null,
@@ -470,6 +470,7 @@ export default {
       form = this.form;
       var uploadedFiles = this.$refs.upload.uploadFiles
       var context = this;
+      var termsAccepted = this.termsAccepted;
       console.log("Abrir dialogo");
       this.$confirm('Vas a subir tus datos, seguro que son correctos?', 'Warning', {
         confirmButtonText: 'SI!',
@@ -478,7 +479,8 @@ export default {
       }).then(() => {
         var iddiligenceResponse;
         context.callIddiligence().then(function(response) {
-          console.log("Iddiligence ha respondido " + response);
+          console.log("Iddiligence ha respondido ");
+          console.log(response);
           if (true) {
             console.log("Iddiligence responde OK");
             if (userExists == false) {
@@ -487,7 +489,8 @@ export default {
                   numberId: form.numberId,
                   email: form.email,
                   validated: (response == 'OK' ? true : false),
-                  intents: 1
+                  intents: 1,
+                  valideanAuth: termsAccepted
                 })
               var intents = 1
               console.log("Usuario añadido");
@@ -495,18 +498,21 @@ export default {
               db.ref('/users/' + userSnapshot.key)
                 .update({
                   intents: userSnapshot.val().intents + 1,
-                  validated: (response == 'OK' ? true : false)
+                  validated: (response == 'OK' ? true : false),
+                  valideanAuth: termsAccepted
                 })
               var intents = userSnapshot.val().intents
             }
             console.log("Se va a subir archivo");
             console.log(uploadedFiles);
             uploadedFiles.forEach(function(element, index) {
+              /*
               console.log("Variable del tipo:");
               console.log(typeof(element));
               console.log(element);
               console.log(typeof(element.raw));
               console.log(element.raw);
+              */
               var file = element.raw // use the Blob or File API
               var storageRef = firebase.storage().ref();
               var mountainsRef = storageRef.child('users/' + form.numberId + '/' + intents + '/' + (index == 0 ? 'frontal' : 'trasera') + '.jpg');
@@ -520,15 +526,126 @@ export default {
             });
             context.$router.push('/chicfy/done', () => console.log('Ruta cambiada')); // Home
           }
+        }).catch(function(error) {
+          // handle error
+          console.log("Iddiligence responde error: " + error);
+          context.$message({
+            type: 'error',
+            message: 'Fallo en el sistema de identificacion'
+          });
         })
       })
     },
     callIddiligence() {
+      var context = this;
       const promise = new Promise(function(resolve, reject) {
-        setTimeout(function() {
-          console.log("Iddiligence responde OK tras 5 segundos");
-          resolve('OK')
-        }, 5000);
+        context.loginIddiligence().then((response) => {
+            context.createOperationIddiligence().then((response) => {
+              console.log("Create Operation responde:");
+              console.log(response);
+              context.createDocumentIddiligence(response.operationId).then((response) => {
+                resolve('OK')
+              })
+            })
+          })
+          .catch((error) => {
+            reject('KO');
+          })
+      })
+      return promise;
+    },
+    loginIddiligence() {
+      const promise = new Promise(function(resolve, reject) {
+        let config = {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        }
+        axios
+          .post('http://demos2.addalia.com/IDocValidationService2/resources/authenticate/', {
+            user: "admin",
+            pass: "admin"
+          }, config)
+          .then((response) => {
+            console.log("Logueado correctamente en iddiligence" + response)
+            if (response.status == 200) {
+              resolve('OK');
+            } else {
+              reject('KO');
+            }
+          })
+          .catch(function(error) {
+            // handle error
+            console.log("Iddiligence responde error: " + error);
+            reject('KO');
+          })
+      })
+      return promise;
+    },
+    createOperationIddiligence() {
+      var context = this;
+      const promise = new Promise(function(resolve, reject) {
+        let config = {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        }
+        axios
+          .post('http://demos2.addalia.com/IDocValidationService2/resources/operations/new/', {
+            attributes: {
+              operation_name: "Operacion de Prueba 1",
+              operation_number: "00000001"
+            }
+          }, config)
+          .then((response) => {
+            console.log("Creada correctamente operacion en Iddiligence" + response)
+            if (response.status == 200) {
+              resolve(response.data);
+            } else {
+              reject('KO');
+            }
+          })
+          .catch(function(error) {
+            // handle error
+            console.log("Iddiligence responde error: " + error);
+            reject('KO');
+          })
+      })
+      return promise;
+    },
+    createDocumentIddiligence(operationNumber) {
+      var context = this;
+      const promise = new Promise(function(resolve, reject) {
+        let config = {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        }
+        console.log("El operation Number es el siguiente" + operationNumber);
+        console.log("El DNI a comprobar es" + context.form.numberId);
+        axios
+          .post('http://demos2.addalia.com/IDocValidationService2/resources/operations/' + operationNumber + '/new/', {
+            type: "Dni",
+            attributes: {
+              dni_number: context.form.numberId
+            }
+          }, config)
+          .then((response) => {
+            console.log("Creado correctamente documento en Iddiligence" + response)
+            if (response.status == 200) {
+              resolve('OK');
+            } else {
+              reject('KO');
+            }
+          })
+          .catch(function(error) {
+            // handle error
+            console.log("Iddiligence responde error: " + error);
+            reject('KO');
+          })
       })
       return promise;
     }

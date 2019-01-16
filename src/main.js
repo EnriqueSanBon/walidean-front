@@ -33,7 +33,7 @@ var config = {
   messagingSenderId: "832613647991"
 };
 firebase.initializeApp(config);
-
+/*
 var mock = new MockAdapter(axios);
 mock.onGet('http://localhost:8080/PVIService/resources/users/3').reply(200, {
   user: {
@@ -97,3 +97,4 @@ mock.onGet('http://localhost:8080/PVIService/resources/users/3/documents/:1/vali
     }
   ]
 });
+*/
