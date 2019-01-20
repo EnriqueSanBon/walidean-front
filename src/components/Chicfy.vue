@@ -540,13 +540,7 @@ export default {
       var context = this;
       const promise = new Promise(function(resolve, reject) {
         context.loginIddiligence().then((response) => {
-            context.createOperationIddiligence().then((response) => {
-              console.log("Create Operation responde:");
-              console.log(response);
-              context.createDocumentIddiligence(response.operationId).then((response) => {
-                resolve('OK')
-              })
-            })
+            resolve('OK')
           })
           .catch((error) => {
             reject('KO');
@@ -635,6 +629,70 @@ export default {
           }, config)
           .then((response) => {
             console.log("Creado correctamente documento en Iddiligence" + response)
+            if (response.status == 200) {
+              resolve(response.data);
+            } else {
+              reject('KO');
+            }
+          })
+          .catch(function(error) {
+            // handle error
+            console.log("Iddiligence responde error: " + error);
+            reject('KO');
+          })
+      })
+      return promise;
+    },
+    createViewIddiligence(operationNumber, documentId) {
+      var context = this;
+      const promise = new Promise(function(resolve, reject) {
+        let config = {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        }
+        console.log("Operation number y documentId son los siguientes: " + operationNumber + '-' + documentId);
+        axios
+          .post('http://demos2.addalia.com/IDocValidationService2/resources/operations/' + operationNumber + documentId + '/new/', {
+            attributes: {
+              view_origin: 'Web',
+              page: 1
+            }
+          }, config)
+          .then((response) => {
+            console.log("Creada correctamente vista en Iddiligence" + response)
+            if (response.status == 200) {
+              resolve(response.data);
+            } else {
+              reject('KO');
+            }
+          })
+          .catch(function(error) {
+            // handle error
+            console.log("Iddiligence responde error: " + error);
+            reject('KO');
+          })
+      })
+      return promise;
+    },
+    uploadFileIddiligence(operationNumber, documentId, viewId, file) {
+      var context = this;
+      const promise = new Promise(function(resolve, reject) {
+        let config = {
+          headers: {
+            'Content-Type': 'application/octet-stream',
+            'Mime-Type': 'image/JPG'
+          },
+          withCredentials: true
+        }
+        console.log("Operation number, documentId y viewId son los siguientes: " + operationNumber + '-' + documentId + '-' + viewId);
+        axios
+          .post('http://demos2.addalia.com/IDocValidationService2/resources/operations/' + operationNumber + documentId + viewId + '/file', {
+            file: file
+          }, config)
+          .then((response) => {
+            console.log("Subido Documento a Iddiligence" + response)
             if (response.status == 200) {
               resolve('OK');
             } else {
