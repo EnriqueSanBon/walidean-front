@@ -1,202 +1,190 @@
 <template>
 <div>
-  <el-container type="flex" justify="center">
-    <el-col :span="8">
+  <el-col :sm="24" :md="8">
+    <el-main>
+      <el-col :span="24">
+        <div v-resize-text="{ratio:1.5, minFontSize: '30px', maxFontSize: '100px', delay: 0}">Instrucciones</div>
+      </el-col>
+      <el-col :sm="12" :md="6">
+        <el-popover placement="top-start" title="Calidad" trigger="hover" content="La imagen debe verse clara y nitida">
+          <img slot="reference" style="width:100%;" src=" https://www.gsmliberar.net/dni/borrosa.png"> </el-popover>
+      </el-col>
+      <el-col :sm="12" :md="6">
+        <el-popover placement="top-start" title="Información" trigger="hover" content="Deben leerse correctamente todos los campos, no debe haber reflejos ni campos tachados u ocultos">
+          <img slot="reference" style="width:100%;" src="https://www.gsmliberar.net/dni/informacion.png">
+        </el-popover>
+      </el-col>
+      <el-col :sm="12" :md="6">
+        <el-popover placement="top-start" title="Fondo" trigger="hover" content="La foto debe hacerse sobre un fondo oscuro">
+          <img slot="reference" style="width:100%;" src="https://www.gsmliberar.net/dni/fondo.png">
+        </el-popover>
+      </el-col>
+      <el-col :sm="12" :md="6">
+        <el-popover placement="top-start" title="Marcos" trigger="hover" content="Asegurate de que se ven las 4 esquinas del documento">
+          <img slot="reference" style="width:100%;" src="https://www.gsmliberar.net/dni/marcos.png">
+        </el-popover>
+      </el-col>
+      <el-col :sm="24" :md="24">
+        <el-upload class="upload-demo" action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" list-type="picture" :limit="2" :on-success="fileUpload" :auto-upload="false" ref="upload" :on-progress="handleProgress">
+          <el-button slot="trigger" size="large" type="primary" v-resize-text="{ratio:1, minFontSize: '10px', maxFontSize: '30px', delay: 0}">Clic para subir archivo</el-button>
+          <!--<el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">Cargar al servidor</el-button>-->
+        </el-upload>
+      </el-col>
+
+      <el-col :sm="24" :md="24">
+        <el-form ref="form2" :model="form" :rules="rules" label-width="10px" label-position="top" size="">
+          <el-form-item label="Numero DNI" prop="numberId">
+            <el-input v-model="form.numberId" :change="this.form.numberId = this.form.numberId.toUpperCase()" size="large"></el-input>
+          </el-form-item>
+          <el-form-item label="Email" prop="email">
+            <el-input v-model="form.email" size="large"></el-input>
+          </el-form-item>
+        </el-form>
+      </el-col>
+    </el-main>
+  </el-col>
+
+  <el-col :sm="24" :md="16">
+    <el-container>
       <el-main>
-        <span class="instructions">Instrucciones</span>
-        <el-row type="flex" justify="center" :gutter="20">
-          <el-col :span="12">
-            <el-popover placement="top-start" title="Calidad" width="200" trigger="hover" content="La imagen debe verse clara y nitida">
-              <img slot="reference" src="https://www.gsmliberar.net/dni/borrosa.png">
-            </el-popover>
-          </el-col>
-          <el-col :span="12">
-            <el-popover placement="top-start" title="Información" width="200" trigger="hover" content="Deben leerse correctamente todos los campos, no debe haber reflejos ni campos tachados u ocultos">
-              <img slot="reference" src="https://www.gsmliberar.net/dni/informacion.png">
-            </el-popover>
-          </el-col>
-          <el-col :span="12">
-            <el-popover placement="top-start" title="Fondo" width="200" trigger="hover" content="La foto debe hacerse sobre un fondo oscuro">
-              <img slot="reference" src="https://www.gsmliberar.net/dni/fondo.png">
-            </el-popover>
-          </el-col>
-          <el-col :span="12">
-            <el-popover placement="top-start" title="Marcos" width="200" trigger="hover" content="Asegurate de que se ven las 4 esquinas del documento">
-              <img slot="reference" src="https://www.gsmliberar.net/dni/marcos.png">
-            </el-popover>
+        <el-row>
+
+          <el-row type="flex" justify="center">
+            <span class="title">WALIDEAN</span>
+          </el-row>
+          <el-row type="flex" justify="center">
+            <p v-resize-text="{ratio:2, minFontSize: '20px', maxFontSize: '30px', delay: 0}">
+              Tus datos han de ser validados. Podemos procesar los datos nosotros usando la plataforma Walidean o si lo prefieres puedes introducirlos a mano. ¿Que método prefieres utilizar?
+            </p>
+          </el-row>
+
+          <el-row type="flex" justify="center">
+            <el-button size="large" type="primary" @click="setValidationMethod(walideanAllowed)" plain v-resize-text="{ratio:1, minFontSize: '20px', maxFontSize: '30px', delay: 0}">Usar Walidean</el-button>
+            <el-button size="large" type="danger" @click="setValidationMethod(walideanNotAllowed)" plain v-resize-text="{ratio:1, minFontSize: '20px', maxFontSize: '30px', delay: 0}">Introducirlo a mano</el-button>
+          </el-row>
+        </el-row>
+
+        <el-row v-if="validationMethod==walideanNotAllowed">
+          <el-container>
+            <el-main>
+              <el-form ref="form" :model="form" :rules="rules" label-width="120px" label-position="top" size="mini">
+                <el-col :md="8" :sm="24">
+                  <el-form-item label="Apellido 1" prop="surname1">
+                    <el-input v-model="form.surname1"></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :md="8" :sm="24">
+                  <el-form-item label="Apellido 2" prop="surname2">
+                    <el-input v-model="form.surname2"></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :md="8" :sm="24">
+                  <el-form-item label="Nombre" prop="name">
+                    <el-input v-model="form.name"></el-input>
+                  </el-form-item>
+                </el-col>
+
+                <el-col :md="8" :sm="24">
+                  <el-form-item label="Fecha de nacimiento" prop="birthDate">
+                    <el-date-picker type="date" placeholder="Selecciona una fecha" v-model="form.birthDate" style="width: 100%;"></el-date-picker>
+                  </el-form-item>
+                </el-col>
+                <el-col :md="8" :sm="24">
+                  <el-form-item label="Nacionalidad" prop="nationality">
+                    <el-select v-model="form.nationality" placeholder="Selecciona tu nacionalidad">
+                      <el-option v-for="item in countries" :label="item" :value="item"></el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :md="8" :sm="24">
+                  <el-form-item label="Numero DNI" prop="numberId">
+                    <el-input v-model="form.numberId"></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :md="8" :sm="24">
+                  <el-form-item label="Localidad" prop="locality">
+                    <el-input v-model="form.locality"></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :md="8" :sm="24">
+                  <el-form-item label="Provincia" prop="province">
+                    <el-select v-model="form.province" placeholder="Selecciona tu provincia">
+                      <el-option v-for="item in provinces" :label="item" :value="item"></el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+
+                <el-col :md="8" :sm="24">
+                  <el-form-item label="Direccion" prop="address">
+                    <el-input v-model="form.address"></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :md="8" :sm="24">
+                  <el-form-item label="Fecha de caducidad" prop="expirationDate">
+                    <el-date-picker type="date" placeholder="Selecciona una fecha" v-model="form.expirationDate" style="width: 100%;"></el-date-picker>
+                  </el-form-item>
+                </el-col>
+                <el-col :md="8" :sm="24">
+                  <el-form-item label="Email" prop="email">
+                    <el-input v-model="form.email"></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :md="8" :sm="24">
+                  <el-form-item label="Sexo" prop="gender">
+                    <el-radio-group v-model="form.gender">
+                      <el-radio label="Hombre"></el-radio>
+                      <el-radio label="Mujer"></el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-col>
+              </el-form>
+            </el-main>
+          </el-container>
+        </el-row>
+
+        <el-row v-if="validationMethod==walideanAllowed">
+          <el-container>
+            <el-main>
+              <el-row justify="center" type="flex">
+                <h3 v-resize-text="{ratio:2, minFontSize: '20px', maxFontSize: '30px', delay: 0}">
+                  Tus datos nunca serán compartidos sin tu permiso explicito
+                </h3>
+              </el-row>
+              <el-row justify="center" type="flex">
+                <h2 v-resize-text="{ratio:2, minFontSize: '20px', maxFontSize: '30px', delay: 0}">
+                  Condiciones legales
+                </h2>
+              </el-row>
+            </el-main>
+          </el-container>
+        </el-row>
+
+        <el-row justify="center" type="flex">
+          <el-col :span="12" v-if="validationMethod==walideanAllowed">
+            <el-row justify="center" type="flex" class="legalTerms">
+              <el-container>
+                <el-main>
+                  <div v-text="legalTerms" v-resize-text="{ratio:1.5, minFontSize: '20px', maxFontSize: '40px', delay: 0}">
+                  </div>
+                  <el-checkbox v-model="termsAccepted" v-resize-text="{ratio:1.5, minFontSize: '30px', maxFontSize: '40px', delay: 0}">He leido y acepto los terminos y condiciones</el-checkbox>
+                </el-main>
+              </el-container>
+            </el-row>
           </el-col>
         </el-row>
 
-        <el-upload class="upload-demo" action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" list-type="picture" :limit="2" :on-success="fileUpload" :auto-upload="false" ref="upload" :on-progress="handleProgress">
-          <el-button slot="trigger" size="small" type="primary">Clic para subir archivo</el-button>
-          <!--<el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">Cargar al servidor</el-button>-->
-        </el-upload>
-
-
-        <el-form ref="form2" :model="form" :rules="rules" label-width="120px" label-position="top" size="mini">
-          <el-form-item label="Numero DNI" prop="numberId">
-            <el-input v-model="form.numberId" :change="this.form.numberId = this.form.numberId.toUpperCase()"></el-input>
-          </el-form-item>
-          <el-form-item label="Email" prop="email">
-            <el-input v-model="form.email"></el-input>
-          </el-form-item>
-        </el-form>
       </el-main>
-    </el-col>
+    </el-container>
+  </el-col>
 
-    <el-col :span="16">
-      <el-container>
-        <el-main>
-          <el-row>
-
-            <el-row type="flex" justify="center">
-              <span class="title">WALIDEAN</span>
-            </el-row>
-            <el-row type="flex" justify="center">
-              <p>
-                Tus datos han de ser validados. Podemos procesar los datos nosotros usando la plataforma Walidean o si lo prefieres puedes introducirlos a mano. ¿Que método prefieres utilizar?
-              </p>
-            </el-row>
-
-            <el-row type="flex" justify="center">
-              <el-button type="primary" @click="setValidationMethod(walideanAllowed)" plain>Usar Walidean</el-button>
-              <el-button type="danger" @click="setValidationMethod(walideanNotAllowed)" plain>Introducirlo a mano</el-button>
-            </el-row>
-          </el-row>
-
-          <el-row v-if="validationMethod==walideanNotAllowed">
-            <el-container>
-              <el-main>
-                <el-form ref="form" :model="form" :rules="rules" label-width="120px" label-position="top" size="mini">
-                  <el-row type="flex" justify="start" :gutter="20">
-                    <el-col :span="7">
-                      <el-form-item label="Apellido 1" prop="surname1">
-                        <el-input v-model="form.surname1"></el-input>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :span="7">
-                      <el-form-item label="Apellido 2" prop="surname2">
-                        <el-input v-model="form.surname2"></el-input>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :span="7">
-                      <el-form-item label="Nombre" prop="name">
-                        <el-input v-model="form.name"></el-input>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-
-                  <el-row type="flex" justify="start" :gutter="20">
-                    <el-col :span="7">
-                      <el-form-item label="Fecha de nacimiento" prop="birthDate">
-                        <el-date-picker type="date" placeholder="Selecciona una fecha" v-model="form.birthDate" style="width: 100%;"></el-date-picker>
-                      </el-form-item>
-                    </el-col>
-
-                    <el-col :span="7">
-                      <el-form-item label="Nacionalidad" prop="nationality">
-                        <el-select v-model="form.nationality" placeholder="Selecciona tu nacionalidad">
-                          <el-option v-for="item in countries" :label="item" :value="item"></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-
-                    <el-col :span="7">
-                      <el-form-item label="Sexo" prop="gender">
-                        <el-radio-group v-model="form.gender">
-                          <el-radio label="Hombre"></el-radio>
-                          <el-radio label="Mujer"></el-radio>
-                        </el-radio-group>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-
-                  <el-row type="flex" justify="start" :gutter="20">
-                    <el-col :span="7">
-                      <el-form-item label="Numero DNI" prop="numberId">
-                        <el-input v-model="form.numberId"></el-input>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :span="7">
-                      <el-form-item label="Localidad" prop="locality">
-                        <el-input v-model="form.locality"></el-input>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :span="7">
-                      <el-form-item label="Provincia" prop="province">
-                        <el-select v-model="form.province" placeholder="Selecciona tu provincia">
-                          <el-option v-for="item in provinces" :label="item" :value="item"></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-
-                  <el-row type="flex" justify="start" :gutter="20">
-                    <el-col :span="7">
-                      <el-form-item label="Direccion" prop="address">
-                        <el-input v-model="form.address"></el-input>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :span="7">
-                      <el-form-item label="Fecha de caducidad" prop="expirationDate">
-                        <el-date-picker type="date" placeholder="Selecciona una fecha" v-model="form.expirationDate" style="width: 100%;"></el-date-picker>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :span="7">
-                      <el-form-item label="Email" prop="email">
-                        <el-input v-model="form.email"></el-input>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                </el-form>
-              </el-main>
-            </el-container>
-          </el-row>
-
-          <el-row v-if="validationMethod==walideanAllowed">
-            <el-container>
-              <el-main>
-                <el-row justify="center" type="flex">
-                  <h3>
-                    Tus datos nunca serán compartidos sin tu permiso explicito
-                  </h3>
-                </el-row>
-                <el-row justify="center" type="flex">
-                  <h2>
-                    Condiciones legales
-                  </h2>
-                </el-row>
-              </el-main>
-            </el-container>
-          </el-row>
-
-          <el-row justify="center" type="flex">
-            <el-col :span="12" v-if="validationMethod==walideanAllowed">
-              <el-row justify="center" type="flex" class="legalTerms">
-                <el-container>
-                  <el-main>
-                    <p v-text="legalTerms">
-                    </p>
-                    <el-checkbox v-model="termsAccepted">He leido y acepto los terminos y condiciones</el-checkbox>
-                  </el-main>
-                </el-container>
-              </el-row>
-            </el-col>
-          </el-row>
-
-        </el-main>
-      </el-container>
-    </el-col>
-
-  </el-container>
-  <el-footer>
-    <el-row type="flex" justify="center">
-      <el-button type="primary" v-if="validationMethod==walideanNotAllowed" @click="onSubmit('form')" :disabled="disableButtonSend">Enviar</el-button>
-      <el-button type="primary" v-if="validationMethod==walideanAllowed" @click="onSubmit('form2')" :disabled="disableButtonSend">Enviar</el-button>
-      <el-button v-if="validationMethod==walideanNotAllowed" @click="resetForm('form')">Reset</el-button>
-      <el-button v-if="validationMethod==walideanAllowed" @click="resetForm('form2')">Reset</el-button>
-    </el-row>
-  </el-footer>
+  <el-col :sm="24" :md="24">
+    <el-footer>
+      <el-button type="primary" v-if="validationMethod==walideanNotAllowed" @click="onSubmit('form')" :disabled="disableButtonSend" v-resize-text="{ratio:1, minFontSize: '20px', maxFontSize: '30px', delay: 0}">Enviar</el-button>
+      <el-button type="primary" v-if="validationMethod==walideanAllowed" @click="onSubmit('form2')" :disabled="disableButtonSend" v-resize-text="{ratio:1, minFontSize: '20px', maxFontSize: '30px', delay: 0}">Enviar</el-button>
+      <el-button v-if="validationMethod==walideanNotAllowed" @click="resetForm('form')" v-resize-text="{ratio:1, minFontSize: '20px', maxFontSize: '30px', delay: 0}">Reset</el-button>
+      <el-button v-if="validationMethod==walideanAllowed" @click="resetForm('form2')" v-resize-text="{ratio:1, minFontSize: '20px', maxFontSize: '30px', delay: 0}">Reset</el-button>
+    </el-footer>
+  </el-col>
 
 
 
@@ -209,15 +197,14 @@ $font-stack: Helvetica, sans-serif;
 body {
     font: 100% $font-stack;
 }
+
 .legalTerms {
-    height: 200px;
+    height: 400px;
 }
 .title {
     font-size: 80px;
 }
-.instructions {
-    font-size: 30px;
-}
+
 img {
     max-width: 100%;
     max-height: 100%;
@@ -350,7 +337,7 @@ export default {
       legalTerms: texts.legalTerms,
       walideanAllowed: consts.walideanAllowed,
       walideanNotAllowed: consts.walideanNotAllowed,
-      db: firebase.database(),
+      db: null,
       isMounted: false,
       controlDigits: ["T", "R", "W", "A", "G", "M", "Y", "F", "P", "D", "X", "B", "N", "J", "Z", "S", "Q", "V", "H", "L", "C", "K", "E"]
     }
@@ -538,11 +525,53 @@ export default {
     },
     callIddiligence() {
       var context = this;
+      var operationId = null;
+      var documentId = null;
+      var viewId = null;
+      var uploadedFiles = this.$refs.upload.uploadFiles
       const promise = new Promise(function(resolve, reject) {
         context.loginIddiligence().then((response) => {
-            resolve('OK')
+            console.log("login realizado");
+            context.createOperationIddiligence().then((response) => {
+              operationId = response.operationId
+              console.log("Create Operation realizado");
+              context.createDocumentIddiligence(operationId).then((response) => {
+                documentId = response.documentId
+                console.log("Create Document realizado");
+                context.createViewIddiligence(operationId, documentId).then((response) => {
+                  console.log("Create View realizado");
+                  viewId = response.viewId
+                  uploadedFiles.forEach(function(element, index) {
+                    var file = element.raw // use the Blob or File API
+                    context.uploadFileIddiligence(operationId, documentId, viewId, file).then((response) => {
+                      console.log("Peticion de subida de fichero a Iddiligence" + response);
+                    }).catch((error) => {
+                      console.log("Capturado error en Subir fichero Iddiligence");
+                      if (operationId != null) {
+                        context.closeOperationIddiligence(operationId).then((response) => {
+                          reject('KO');
+                          console.log("Aqui no deberia entrar 1");
+                        })
+                      }
+                      console.log("Aqui no deberia entrar 2");
+                      reject('KO');
+                    })
+                  });
+                  context.closeOperationIddiligence(operationId).then((response) => {
+                    console.log("Aqui no deberia entrar3");
+                    resolve('OK');
+                  })
+                })
+              })
+            })
           })
           .catch((error) => {
+            console.log("Capturado error en Login Iddiligence");
+            if (operationId != null) {
+              context.closeOperationIddiligence(operationId).then((response) => {
+                reject('KO');
+              })
+            }
             reject('KO');
           })
       })
@@ -594,9 +623,35 @@ export default {
             }
           }, config)
           .then((response) => {
-            console.log("Creada correctamente operacion en Iddiligence" + response)
+            console.log("Creada correctamente operacion en Iddiligence")
+            console.log(response.data)
             if (response.status == 200) {
               resolve(response.data);
+            } else {
+              reject('KO');
+            }
+          })
+          .catch(function(error) {
+            // handle error
+            console.log("Iddiligence responde error: " + error);
+            reject('KO');
+          })
+      })
+      return promise;
+    },
+    closeOperationIddiligence(operationId) {
+      var context = this;
+      const promise = new Promise(function(resolve, reject) {
+        let config = {
+          withCredentials: true
+        }
+        axios
+          .post('http://demos2.addalia.com/IDocValidationService2/resources/operations/' + operationId, {}, config)
+          .then((response) => {
+            console.log("Cerrada correctamente operacion en Iddiligence")
+            console.log(response.data)
+            if (response.status == 200) {
+              resolve('OK');
             } else {
               reject('KO');
             }
@@ -628,7 +683,8 @@ export default {
             }
           }, config)
           .then((response) => {
-            console.log("Creado correctamente documento en Iddiligence" + response)
+            console.log("Creado correctamente documento en Iddiligence");
+            console.log(response);
             if (response.status == 200) {
               resolve(response.data);
             } else {
@@ -654,7 +710,7 @@ export default {
         }
         console.log("Operation number y documentId son los siguientes: " + operationNumber + '-' + documentId);
         axios
-          .post('http://demos2.addalia.com/IDocValidationService2/resources/operations/' + operationNumber + documentId + '/new/', {
+          .post('http://demos2.addalia.com/IDocValidationService2/resources/operations/' + operationNumber + '/' + documentId + '/new/', {
             attributes: {
               view_origin: 'Web',
               page: 1
@@ -688,8 +744,8 @@ export default {
         }
         console.log("Operation number, documentId y viewId son los siguientes: " + operationNumber + '-' + documentId + '-' + viewId);
         axios
-          .post('http://demos2.addalia.com/IDocValidationService2/resources/operations/' + operationNumber + documentId + viewId + '/file', {
-            file: file
+          .put('http://demos2.addalia.com/IDocValidationService2/resources/operations/' + operationNumber + '/' + documentId + '/' + viewId + '/file', {
+            data: file
           }, config)
           .then((response) => {
             console.log("Subido Documento a Iddiligence" + response)
@@ -717,6 +773,22 @@ export default {
   },
   mounted() {
     this.isMounted = true;
+
+    //Iddiligence llamar a login
+  },
+  created() {
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyBVwrpVjSABKmSQ-5H_QFXiBPzKfcTAOkA",
+      authDomain: "walidean.firebaseapp.com",
+      databaseURL: "https://walidean.firebaseio.com",
+      projectId: "walidean",
+      storageBucket: "walidean.appspot.com",
+      messagingSenderId: "832613647991"
+    };
+    firebase.initializeApp(config);
+    this.db = firebase.database();
+
     //Iddiligence llamar a login
   }
 }

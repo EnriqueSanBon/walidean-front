@@ -8,23 +8,7 @@ import ChicfyDone from './components/ChicfyDone.vue';
 
 export const routes = [{
   path: '/',
-  component: Home
-}, {
-  path: '/clientForm',
-  component: ClientForm
-}, {
-  path: '/client',
-  component: Client
-}, {
-  path: '/document/:id',
-  component: Document
-}, {
-  path: '/document/:id/validations',
-  component: Validations,
-  props: true
-}, {
-  path: '/chicfy/home',
-  component: Chicfy,
+  component: Chicfy
 }, {
   path: '/chicfy/done',
   component: ChicfyDone,
