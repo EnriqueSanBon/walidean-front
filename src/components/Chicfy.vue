@@ -3,30 +3,17 @@
   <el-col :sm="24" :md="8">
     <el-main>
       <el-col :span="24">
-        <div v-resize-text="{ratio:1.5, minFontSize: '30px', maxFontSize: '100px', delay: 0}">Instrucciones</div>
+        <div>Instrucciones</div>
       </el-col>
-      <el-col :sm="12" :md="6">
-        <el-popover placement="top-start" title="Calidad" trigger="hover" content="La imagen debe verse clara y nitida">
-          <img slot="reference" style="width:100%;" src=" https://www.gsmliberar.net/dni/borrosa.png"> </el-popover>
-      </el-col>
-      <el-col :sm="12" :md="6">
-        <el-popover placement="top-start" title="Información" trigger="hover" content="Deben leerse correctamente todos los campos, no debe haber reflejos ni campos tachados u ocultos">
-          <img slot="reference" style="width:100%;" src="https://www.gsmliberar.net/dni/informacion.png">
+      <el-col :xs="12" :md="6" v-for="item in instructions">
+        <el-popover placement="top-start" :title="item.tittle" trigger="hover" :content="item.text">
+          <img slot="reference" style="width:100%;" :src="item.src">
         </el-popover>
       </el-col>
-      <el-col :sm="12" :md="6">
-        <el-popover placement="top-start" title="Fondo" trigger="hover" content="La foto debe hacerse sobre un fondo oscuro">
-          <img slot="reference" style="width:100%;" src="https://www.gsmliberar.net/dni/fondo.png">
-        </el-popover>
-      </el-col>
-      <el-col :sm="12" :md="6">
-        <el-popover placement="top-start" title="Marcos" trigger="hover" content="Asegurate de que se ven las 4 esquinas del documento">
-          <img slot="reference" style="width:100%;" src="https://www.gsmliberar.net/dni/marcos.png">
-        </el-popover>
-      </el-col>
+
       <el-col :sm="24" :md="24">
         <el-upload class="upload-demo" action="https://jsonplaceholder.typicode.com/posts/" :on-preview="handlePreview" :on-remove="handleRemove" list-type="picture" :limit="2" :on-success="fileUpload" :auto-upload="false" ref="upload" :on-progress="handleProgress">
-          <el-button slot="trigger" size="large" type="primary" v-resize-text="{ratio:1, minFontSize: '10px', maxFontSize: '30px', delay: 0}">Clic para subir archivo</el-button>
+          <el-button slot="trigger" type="primary">Clic para subir archivo</el-button>
           <!--<el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">Cargar al servidor</el-button>-->
         </el-upload>
       </el-col>
@@ -34,10 +21,10 @@
       <el-col :sm="24" :md="24">
         <el-form ref="form2" :model="form" :rules="rules" label-width="10px" label-position="top" size="">
           <el-form-item label="Numero DNI" prop="numberId">
-            <el-input v-model="form.numberId" :change="this.form.numberId = this.form.numberId.toUpperCase()" size="large"></el-input>
+            <el-input v-model="form.numberId" :change="this.form.numberId = this.form.numberId.toUpperCase()"></el-input>
           </el-form-item>
           <el-form-item label="Email" prop="email">
-            <el-input v-model="form.email" size="large"></el-input>
+            <el-input v-model="form.email"></el-input>
           </el-form-item>
         </el-form>
       </el-col>
@@ -53,14 +40,14 @@
             <span class="title">WALIDEAN</span>
           </el-row>
           <el-row type="flex" justify="center">
-            <p v-resize-text="{ratio:2, minFontSize: '20px', maxFontSize: '30px', delay: 0}">
+            <p>
               Tus datos han de ser validados. Podemos procesar los datos nosotros usando la plataforma Walidean o si lo prefieres puedes introducirlos a mano. ¿Que método prefieres utilizar?
             </p>
           </el-row>
 
           <el-row type="flex" justify="center">
-            <el-button size="large" type="primary" @click="setValidationMethod(walideanAllowed)" plain v-resize-text="{ratio:1, minFontSize: '20px', maxFontSize: '30px', delay: 0}">Usar Walidean</el-button>
-            <el-button size="large" type="danger" @click="setValidationMethod(walideanNotAllowed)" plain v-resize-text="{ratio:1, minFontSize: '20px', maxFontSize: '30px', delay: 0}">Introducirlo a mano</el-button>
+            <el-button type="primary" @click="setValidationMethod(walideanAllowed)" plain>Usar Walidean</el-button>
+            <el-button type="danger" @click="setValidationMethod(walideanNotAllowed)" plain>Introducirlo a mano</el-button>
           </el-row>
         </el-row>
 
@@ -137,6 +124,34 @@
                     </el-radio-group>
                   </el-form-item>
                 </el-col>
+
+
+
+                <el-col :md="8" :sm="24" v-for="item in inputs">
+                  <el-form-item :label="item.label" :prop="item.prop" v-if="item.tag=='select'">
+                    <el-select v-model="item.model" :placeholder="item.placeholder">
+                      <el-option v-for="item in item.data" :label="item" :value="item"></el-option>
+                    </el-select>
+                  </el-form-item>
+
+                  <el-form-item :label="item.label" :prop="item.prop" v-if="item.tag=='date-picker'">
+                    <el-date-picker v-model="item.model" :placeholder="item.placeholder">
+                    </el-date-picker>
+                  </el-form-item>
+
+                  <el-form-item :label="item.label" :prop="item.prop" v-if="item.tag=='input'">
+                    <el-input v-model="item.model">
+                    </el-input>
+                  </el-form-item>
+
+                  <el-form-item :label="item.label" :prop="item.prop" v-if="item.tag=='radio-group'">
+                    <el-radio-group v-model="item.model">
+                      <el-radio v-for="elRadio in item.options" :label="elRadio.label"></el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-col>
+
+
               </el-form>
             </el-main>
           </el-container>
@@ -146,12 +161,12 @@
           <el-container>
             <el-main>
               <el-row justify="center" type="flex">
-                <h3 v-resize-text="{ratio:2, minFontSize: '20px', maxFontSize: '30px', delay: 0}">
+                <h3>
                   Tus datos nunca serán compartidos sin tu permiso explicito
                 </h3>
               </el-row>
               <el-row justify="center" type="flex">
-                <h2 v-resize-text="{ratio:2, minFontSize: '20px', maxFontSize: '30px', delay: 0}">
+                <h2>
                   Condiciones legales
                 </h2>
               </el-row>
@@ -160,13 +175,13 @@
         </el-row>
 
         <el-row justify="center" type="flex">
-          <el-col :span="12" v-if="validationMethod==walideanAllowed">
+          <el-col :md="18" :xs="24" v-if="validationMethod==walideanAllowed">
             <el-row justify="center" type="flex" class="legalTerms">
               <el-container>
                 <el-main>
-                  <div v-text="legalTerms" v-resize-text="{ratio:1.5, minFontSize: '20px', maxFontSize: '40px', delay: 0}">
+                  <div v-text="legalTerms">
                   </div>
-                  <el-checkbox v-model="termsAccepted" v-resize-text="{ratio:1.5, minFontSize: '30px', maxFontSize: '40px', delay: 0}">He leido y acepto los terminos y condiciones</el-checkbox>
+                  <el-checkbox v-model="termsAccepted">He leido y acepto los terminos</el-checkbox>
                 </el-main>
               </el-container>
             </el-row>
@@ -179,10 +194,12 @@
 
   <el-col :sm="24" :md="24">
     <el-footer>
-      <el-button type="primary" v-if="validationMethod==walideanNotAllowed" @click="onSubmit('form')" :disabled="disableButtonSend" v-resize-text="{ratio:1, minFontSize: '20px', maxFontSize: '30px', delay: 0}">Enviar</el-button>
-      <el-button type="primary" v-if="validationMethod==walideanAllowed" @click="onSubmit('form2')" :disabled="disableButtonSend" v-resize-text="{ratio:1, minFontSize: '20px', maxFontSize: '30px', delay: 0}">Enviar</el-button>
-      <el-button v-if="validationMethod==walideanNotAllowed" @click="resetForm('form')" v-resize-text="{ratio:1, minFontSize: '20px', maxFontSize: '30px', delay: 0}">Reset</el-button>
-      <el-button v-if="validationMethod==walideanAllowed" @click="resetForm('form2')" v-resize-text="{ratio:1, minFontSize: '20px', maxFontSize: '30px', delay: 0}">Reset</el-button>
+      <el-button type="primary" v-if="validationMethod==walideanNotAllowed" @click="onSubmit('form')" :disabled="disableButtonSend">Enviar
+      </el-button>
+      <el-button type="primary" v-if="validationMethod==walideanAllowed" @click="onSubmit('form2')" :disabled="disableButtonSend">Enviar
+      </el-button>
+      <el-button v-if="validationMethod==walideanNotAllowed" @click="resetForm('form')">Reset</el-button>
+      <el-button v-if="validationMethod==walideanAllowed" @click="resetForm('form2')">Reset</el-button>
     </el-footer>
   </el-col>
 
@@ -199,10 +216,10 @@ body {
 }
 
 .legalTerms {
-    height: 400px;
+    height: 200px;
 }
 .title {
-    font-size: 80px;
+    font-size: 40px;
 }
 
 img {
@@ -249,6 +266,32 @@ export default {
     };
 
     return {
+      inputs: [{
+        label: "Fecha de caducidad",
+        prop: "expirationDate",
+        model: null,
+        placeholder: 'Selecciona una fecha',
+        tag: 'date-picker',
+        type: "date"
+      }, {
+        label: "Provincia",
+        prop: "province",
+        model: null,
+        placeholder: 'Selecciona tu provincia',
+        tag: 'select',
+        data: consts.provinces
+      }, {
+        label: "Sexo",
+        prop: "gender",
+        model: null,
+        tag: 'radio-group',
+        options: [{ label: "Hombre" }, { label: "Mujer" }]
+      }, {
+        label: "Email",
+        prop: "email",
+        model: null,
+        tag: 'input'
+      }],
       form: {
         surname1: null,
         surname2: null,
@@ -339,7 +382,25 @@ export default {
       walideanNotAllowed: consts.walideanNotAllowed,
       db: null,
       isMounted: false,
-      controlDigits: ["T", "R", "W", "A", "G", "M", "Y", "F", "P", "D", "X", "B", "N", "J", "Z", "S", "Q", "V", "H", "L", "C", "K", "E"]
+      controlDigits: ["T", "R", "W", "A", "G", "M", "Y", "F", "P", "D", "X", "B", "N", "J", "Z", "S", "Q", "V", "H", "L", "C", "K", "E"],
+      instructions: [{
+        src: 'https://www.gsmliberar.net/dni/borrosa.png',
+        tittle: 'Calidad',
+        text: 'La imagen debe verse clara y nitida'
+      }, {
+        src: 'https://www.gsmliberar.net/dni/informacion.png',
+        tittle: 'Información',
+        text: 'Deben leerse correctamente todos los campos, no debe haber reflejos ni campos tachados u ocultos'
+      }, {
+        src: 'https://www.gsmliberar.net/dni/fondo.png',
+        tittle: 'Fondo',
+        text: 'La foto debe hacerse sobre un fondo oscuro'
+      }, {
+        src: 'https://www.gsmliberar.net/dni/marcos.png',
+        tittle: 'Marcos',
+        text: 'La foto debe hacerse sobre un fondo oscuro'
+      }],
+
     }
   },
   methods: {
@@ -369,15 +430,7 @@ export default {
         if (valid) {
           var ref = this.db.ref("/users");
           form = this.form;
-          //var openSendDataAlert = this.openSendDataAlert();
           var context = this;
-          /*
-                    ref.orderByChild("email").equalTo(this.form.email).once("value", function(snapshot) {
-                      console.log("Email encontrado");
-                      console.log(snapshot.val());
-                      return
-                    });
-          */
           ref.orderByChild("numberId").equalTo(this.form.numberId).once("value")
             .then(
               function(snapshot) {
@@ -447,8 +500,6 @@ export default {
     },
     setValidationMethod(method) {
       this.validationMethod = method;
-      if (method == this.walideanNotAllowed)
-        console.log("TermsAccepted a false");
       this.termsAccepted = false;
     },
     openSendDataAlert(userExists, userSnapshot, form) {
@@ -462,14 +513,12 @@ export default {
       this.$confirm('Vas a subir tus datos, seguro que son correctos?', 'Warning', {
         confirmButtonText: 'SI!',
         cancelButtonText: 'Cancelar',
-        type: 'warning'
+        type: 'warning',
+        center: true
       }).then(() => {
         var iddiligenceResponse;
         context.callIddiligence().then(function(response) {
-          console.log("Iddiligence ha respondido ");
-          console.log(response);
-          if (true) {
-            console.log("Iddiligence responde OK");
+          if (response == 'OK') {
             if (userExists == false) {
               db.ref('/users')
                 .push({
@@ -480,7 +529,6 @@ export default {
                   valideanAuth: termsAccepted
                 })
               var intents = 1
-              console.log("Usuario añadido");
             } else {
               db.ref('/users/' + userSnapshot.key)
                 .update({
@@ -490,16 +538,7 @@ export default {
                 })
               var intents = userSnapshot.val().intents
             }
-            console.log("Se va a subir archivo");
-            console.log(uploadedFiles);
             uploadedFiles.forEach(function(element, index) {
-              /*
-              console.log("Variable del tipo:");
-              console.log(typeof(element));
-              console.log(element);
-              console.log(typeof(element.raw));
-              console.log(element.raw);
-              */
               var file = element.raw // use the Blob or File API
               var storageRef = firebase.storage().ref();
               var mountainsRef = storageRef.child('users/' + form.numberId + '/' + intents + '/' + (index == 0 ? 'frontal' : 'trasera') + '.jpg');
@@ -768,12 +807,13 @@ export default {
     disableButtonSend: function() {
       if (!this.isMounted)
         return;
+      console.log("Loles");
+      console.log((this.termsAccepted == false && this.validationMethod == this.walideanAllowed) || this.$refs.upload.uploadFiles.length < 2);
       return ((this.termsAccepted == false && this.validationMethod == this.walideanAllowed) || this.$refs.upload.uploadFiles.length < 2);
     }
   },
   mounted() {
     this.isMounted = true;
-
     //Iddiligence llamar a login
   },
   created() {
@@ -788,7 +828,6 @@ export default {
     };
     firebase.initializeApp(config);
     this.db = firebase.database();
-
     //Iddiligence llamar a login
   }
 }

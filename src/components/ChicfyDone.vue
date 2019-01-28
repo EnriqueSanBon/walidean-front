@@ -5,14 +5,6 @@
       <el-row justify="center" type="flex">
         <h1>Archivos subidos correctamente</h1>
       </el-row>
-      <el-form label-width="120px" label-position="top" size="mini">
-        <el-form-item label="Operation Id">
-          <el-input v-model="operationId"></el-input>
-        </el-form-item>
-      </el-form>
-      <el-button type="primary" @click="consultOperationIddiligence(operationId)">Enviar</el-button>
-
-      <pre>{{$data}}</pre>
     </el-main>
   </el-container>
 </div>
