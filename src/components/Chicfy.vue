@@ -127,30 +127,6 @@
 
 
 
-                <el-col :md="8" :sm="24" v-for="item in inputs">
-                  <el-form-item :label="item.label" :prop="item.prop" v-if="item.tag=='select'">
-                    <el-select v-model="item.model" :placeholder="item.placeholder">
-                      <el-option v-for="item in item.data" :label="item" :value="item"></el-option>
-                    </el-select>
-                  </el-form-item>
-
-                  <el-form-item :label="item.label" :prop="item.prop" v-if="item.tag=='date-picker'">
-                    <el-date-picker v-model="item.model" :placeholder="item.placeholder">
-                    </el-date-picker>
-                  </el-form-item>
-
-                  <el-form-item :label="item.label" :prop="item.prop" v-if="item.tag=='input'">
-                    <el-input v-model="item.model">
-                    </el-input>
-                  </el-form-item>
-
-                  <el-form-item :label="item.label" :prop="item.prop" v-if="item.tag=='radio-group'">
-                    <el-radio-group v-model="item.model">
-                      <el-radio v-for="elRadio in item.options" :label="elRadio.label"></el-radio>
-                    </el-radio-group>
-                  </el-form-item>
-                </el-col>
-
 
               </el-form>
             </el-main>
@@ -266,32 +242,6 @@ export default {
     };
 
     return {
-      inputs: [{
-        label: "Fecha de caducidad",
-        prop: "expirationDate",
-        model: null,
-        placeholder: 'Selecciona una fecha',
-        tag: 'date-picker',
-        type: "date"
-      }, {
-        label: "Provincia",
-        prop: "province",
-        model: null,
-        placeholder: 'Selecciona tu provincia',
-        tag: 'select',
-        data: consts.provinces
-      }, {
-        label: "Sexo",
-        prop: "gender",
-        model: null,
-        tag: 'radio-group',
-        options: [{ label: "Hombre" }, { label: "Mujer" }]
-      }, {
-        label: "Email",
-        prop: "email",
-        model: null,
-        tag: 'input'
-      }],
       form: {
         surname1: null,
         surname2: null,
